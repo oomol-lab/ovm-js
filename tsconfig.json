@@ -1,0 +1,4 @@
+{
+  "extends": "@oomol-lab/tsconfig/tsconfig.node.json",
+  "include": ["src/**/**.ts", "**.ts", "**.js", "**.mjs", "**.json"],
+}

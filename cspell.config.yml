@@ -1,0 +1,66 @@
+language: en
+words:
+  - oomol
+  - gvproxy
+  - vfkit
+  - treeshake
+  - vsock
+  - virtiofs
+  - unixgram
+  - podman
+  - libpod
+  - virtio
+dictionaries:
+  - companies
+  - softwareTerms
+  - misc
+  - typescript
+  - node
+  - rust
+  - golang
+  - html
+  - css
+  - bash
+  - docker
+  - fonts
+  - filetypes
+  - npm
+  - fullstack
+  - en_US
+  - en-gb
+flagWords:
+  - fuck
+  - bitch
+  - asshole
+  - bullshit
+  - crap
+  - suck
+  - wtf
+  - idiot
+  - moron
+  - asshole
+  - bastard
+  - jerk
+  - jerkoff
+  - douche
+  - dickhead
+  - douchebag
+  - cunt
+  - nigger
+  - chink
+  - spic
+  - kike
+  - fag
+  - wetback
+  - piss
+  - damn
+ignorePaths:
+  - "**/coverage/**"
+  - "**/node_modules/**"
+  - "**/out/**"
+  - package-lock.json
+  - yarn.lock
+  - pnpm-lock.yaml
+  - CHANGELOG.md
+  - "**/CHANGELOG.md"
+  - cspell.config.yml
