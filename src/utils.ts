@@ -3,13 +3,14 @@ import path from "node:path";
 import net from "node:net";
 import http from "node:http";
 import AdmZIP from "adm-zip";
+import { constants } from "node:fs";
 
 export const isExecFile = (p: string): Promise<void> => {
-    return fs.access(p, fs.constants.X_OK);
+    return fs.access(p, constants.X_OK);
 };
 
 export const assertExistsFile = (p: string): Promise<void> => {
-    return fs.access(p, fs.constants.F_OK);
+    return fs.access(p, constants.F_OK);
 };
 
 export const existsFile = async (p: string): Promise<boolean> => {
