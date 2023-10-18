@@ -5,6 +5,9 @@ settings:
   excludeLinksFromLockfile: false
 
 dependencies:
+  adm-zip:
+    specifier: ^0.5.10
+    version: 0.5.10
   node-ssh:
     specifier: ^13.1.0
     version: 13.1.0
@@ -22,6 +25,9 @@ devDependencies:
   '@oomol-lab/tsconfig':
     specifier: ^0.0.1
     version: 0.0.1
+  '@types/adm-zip':
+    specifier: ^0.5.3
+    version: 0.5.3
   '@types/node':
     specifier: ^20.6.5
     version: 20.6.5
@@ -403,6 +409,12 @@ packages:
     resolution: {integrity: sha512-T45eJq+qKK6++ccNORZ3XyFRJ5MOf6dqazFcgx8SP4yJTJ5EsQhg0sECLI1hRsakjW6N1NxOCuQ4Z+XU37FPSQ==}
     dev: true
 
+  /@types/adm-zip@0.5.3:
+    resolution: {integrity: sha512-LfeDIiFdvphelYY2aMWTyQBr5cTb1EL9Qcu19jFizdt2sL/jL+fy1fE8IgAKBFI5XfbGukaRDDM5PiJTrovAhA==}
+    dependencies:
+      '@types/node': 20.6.5
+    dev: true
+
   /@types/json-schema@7.0.13:
     resolution: {integrity: sha512-RbSSoHliUbnXj3ny0CNFOoxrIDV6SUGyStHsvDqosw6CkdPV8TtWGlfecuK4ToyMEAql6pzNxgCFKanovUzlgQ==}
     dev: true
@@ -573,6 +585,11 @@ packages:
     engines: {node: '>=0.4.0'}
     hasBin: true
     dev: true
+
+  /adm-zip@0.5.10:
+    resolution: {integrity: sha512-x0HvcHqVJNTPk/Bw8JbLWlWoo6Wwnsug0fnYYro1HBrjxZ3G7/AZk7Ahv8JwDe1uIcz8eBqvu86FuF1POiG7vQ==}
+    engines: {node: '>=6.0'}
+    dev: false
 
   /ajv@6.12.6:
     resolution: {integrity: sha512-j3fVLgvTo527anyYyJOGTYJbG+vnnQYvE0m5mmkc1TK+nxAppkCLMIL0aZ4dblVCNoGShhm+kzE4ZUykBoMg4g==}
