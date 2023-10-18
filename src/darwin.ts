@@ -182,7 +182,7 @@ export class DarwinOVM {
 
         await sleep(1000);
         await pRetry(() => request.get(`http://localhost:${this.podmanPort}/libpod/_ping`, 100), {
-            interval: 100,
+            interval: 10,
             retries: 20,
         });
 
