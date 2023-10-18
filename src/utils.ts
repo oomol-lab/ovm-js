@@ -1,7 +1,8 @@
 import fs from "node:fs/promises";
 import path from "node:path";
-import * as net from "net";
-import * as http from "http";
+import net from "node:net";
+import http from "node:http";
+import AdmZIP from "adm-zip";
 
 export const isExecFile = (p: string): Promise<void> => {
     return fs.access(p, fs.constants.X_OK);
@@ -18,6 +19,24 @@ export const existsFile = async (p: string): Promise<boolean> => {
     } catch (_error) {
         return false;
     }
+};
+
+export const copy = (origin: string, target: string): Promise<void> => {
+    return fs.copyFile(origin, target);
+};
+
+export const unzip = async (zipFile: string, target: string): Promise<void> => {
+    const zip = new AdmZIP(zipFile);
+
+    return new Promise((resolve, reject) => {
+        zip.extractAllToAsync(target, true, false, (error) => {
+            if (error) {
+                return reject(error);
+            } else {
+                return resolve();
+            }
+        });
+    });
 };
 
 export const rename = async (oldPath: string, newName: string): Promise<void> => {

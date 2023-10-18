@@ -1,23 +1,35 @@
 import {
     assertExistsFile,
+    copy,
+    existsFile,
     findUsablePort,
     isExecFile,
+    mkdir,
     pRetry,
     request,
     rm,
     sleep,
+    unzip,
 } from "./utils";
 import type { OVMDarwinOptions, OVMEventData } from "./type";
-import os from "os";
+import os from "node:os";
 import cp from "node:child_process";
-import type { ChildProcessWithoutNullStreams } from "child_process";
+import type { ChildProcessWithoutNullStreams } from "node:child_process";
 import { Logger } from "./logger";
 import { NodeSSH } from "node-ssh";
 import { Remitter } from "remitter";
 import type { OVMInfo } from "./type";
+import path from "node:path";
 
 export class DarwinOVM {
     private readonly remitter = new Remitter<OVMEventData>();
+
+    private path: OVMDarwinOptions["originPath"] = {} as OVMDarwinOptions["originPath"];
+    private socket = {
+        network: "",
+        vfkit: "",
+        vfkitRestful: "",
+    };
 
     private gvproxyProcess?: ChildProcessWithoutNullStreams;
     private vfkitProcess?: ChildProcessWithoutNullStreams;
@@ -33,7 +45,8 @@ export class DarwinOVM {
     public static async create(options: OVMDarwinOptions): Promise<DarwinOVM> {
         const ovm = new DarwinOVM(options);
         await ovm.check();
-        await ovm.removeSocket();
+        await ovm.initPath();
+        await ovm.initSocket();
         await ovm.initLogs();
         await ovm.initPort();
         return ovm;
@@ -41,19 +54,52 @@ export class DarwinOVM {
 
     private async check(): Promise<void> {
         await Promise.all([
-            isExecFile(this.options.gvproxyPath),
-            isExecFile(this.options.vfkitPath),
-            assertExistsFile(this.options.initrdPath),
-            assertExistsFile(this.options.kernelPath),
-            assertExistsFile(this.options.rootfsPath),
+            isExecFile(this.options.originPath.gvproxy),
+            isExecFile(this.options.originPath.vfkit),
+            assertExistsFile(this.options.originPath.initrd),
+            assertExistsFile(this.options.originPath.kernel),
+            assertExistsFile(this.options.originPath.rootfs),
         ]);
+    }
+
+    private async overridePath(forceOverride: boolean): Promise<void> {
+        await mkdir(this.options.targetDir);
+        await Promise.all(Object.keys(this.options.originPath)
+            .map(async (k) => {
+                const filename = path.basename(this.options.originPath[k]);
+                const isZIP = filename.toLowerCase().endsWith(".zip");
+                const targetPath = path.join(this.options.targetDir, isZIP ? filename.slice(0, -4) : filename);
+
+                if (forceOverride || !await existsFile(targetPath)) {
+                    if (isZIP) {
+                        await unzip(this.options.originPath[k], this.options.targetDir);
+                    } else {
+                        await copy(this.options.originPath[k], targetPath);
+                    }
+                }
+
+                this.path[k] = targetPath;
+            }));
+    }
+
+    private async initPath() {
+        await this.overridePath(false);
+    }
+
+    private async initSocket(): Promise<void> {
+        await mkdir(this.options.socketDir);
+        this.socket.vfkit = path.join(this.options.socketDir, "vfkit.sock");
+        this.socket.network = path.join(this.options.socketDir, "network.sock");
+        this.socket.vfkitRestful = path.join(this.options.socketDir, "vfkit-restful.sock");
+
+        await this.removeSocket();
     }
 
     private async removeSocket(): Promise<void> {
         await Promise.all([
-            rm(this.options.vfkitSocketPath),
-            rm(this.options.networkSocketPath),
-            rm(this.options.vfkitRestfulSocketPath),
+            rm(this.socket.vfkit),
+            rm(this.socket.network),
+            rm(this.socket.vfkitRestful),
         ]);
     }
 
@@ -101,11 +147,11 @@ export class DarwinOVM {
     }
 
     private async startGVProxy(): Promise<void> {
-        this.gvproxyProcess = cp.spawn(this.options.gvproxyPath, [
+        this.gvproxyProcess = cp.spawn(this.path.gvproxy, [
             "-ssh-port", `${this.sshPort}`,
             "-listen", "vsock://:1024",
-            "-listen", `unix://${this.options.vfkitSocketPath}`,
-            "-listen", `unix://${this.options.networkSocketPath}`,
+            "-listen", `unix://${this.socket.vfkit}`,
+            "-listen", `unix://${this.socket.network}`,
         ], {
             timeout: 0,
             windowsHide: true,
@@ -126,20 +172,20 @@ export class DarwinOVM {
             this.logGVProxy.info(data.toString());
         });
 
-        await pRetry(async () => assertExistsFile(this.options.networkSocketPath), {
+        await pRetry(async () => assertExistsFile(this.socket.network), {
             interval: 50,
             retries: 200,
         });
     }
 
     private async startVFKit() {
-        this.vfkitProcess = cp.spawn(this.options.vfkitPath, [
+        this.vfkitProcess = cp.spawn(this.path.vfkit, [
             "--cpus", `${Math.floor(os.cpus().length / 2)}`,
             "--memory", "2048",
-            "--restful-uri", `unix://${this.options.vfkitRestfulSocketPath}`,
-            "--bootloader", `linux,kernel=${this.options.kernelPath},initrd=${this.options.initrdPath},cmdline="\\"root=/dev/vda\\""`,
-            "--device", `virtio-blk,path=${this.options.rootfsPath}`,
-            "--device", `virtio-vsock,port=1024,socketURL=${this.options.vfkitSocketPath}`,
+            "--restful-uri", `unix://${this.socket.vfkitRestful}`,
+            "--bootloader", `linux,kernel=${this.path.kernel},initrd=${this.path.initrd},cmdline="\\"root=/dev/vda\\""`,
+            "--device", `virtio-blk,path=${this.path.rootfs}`,
+            "--device", `virtio-vsock,port=1024,socketURL=${this.socket.vfkit}`,
             "--device", "virtio-fs,sharedDir=/Users/,mountTag=vfkit-share-user",
             "--device", "virtio-fs,sharedDir=/var/folders/,mountTag=vfkit-share-var-folders",
             "--device", "virtio-fs,sharedDir=/private/,mountTag=vfkit-share-private",
@@ -163,7 +209,7 @@ export class DarwinOVM {
             this.logVFKit.info(data.toString());
         });
 
-        await pRetry(async () => assertExistsFile(this.options.vfkitRestfulSocketPath), {
+        await pRetry(async () => assertExistsFile(this.socket.vfkitRestful), {
             interval: 50,
             retries: 200,
         });
@@ -176,7 +222,7 @@ export class DarwinOVM {
                 local: `:${this.podmanPort}`,
                 remote: "192.168.127.2:58125",
             }),
-            this.options.networkSocketPath,
+            this.socket.network,
             500,
         );
 
@@ -214,7 +260,7 @@ export class DarwinOVM {
             JSON.stringify({
                 state: "Stop",
             }),
-            this.options.vfkitRestfulSocketPath,
+            this.socket.vfkitRestful,
             500,
         ).catch((_error) => {
             // ignore error
@@ -242,8 +288,13 @@ export class DarwinOVM {
                 local: `:${hostPort}`,
                 remote: `192.168.127.2:${guestPort}`,
             }),
-            this.options.networkSocketPath,
+            this.socket.network,
             500,
         );
+    }
+
+    public async resetPath(): Promise<void> {
+        await this.internalStop();
+        await this.overridePath(true);
     }
 }

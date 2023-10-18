@@ -1,12 +1,13 @@
 export interface OVMDarwinOptions {
-    gvproxyPath: string;
-    vfkitPath: string;
-    vfkitSocketPath: string;
-    vfkitRestfulSocketPath: string;
-    networkSocketPath: string;
-    initrdPath: string;
-    kernelPath: string;
-    rootfsPath: string;
+    originPath: {
+        gvproxy: string;
+        vfkit: string;
+        initrd: string;
+        kernel: string;
+        rootfs: string;
+    };
+    targetDir: string;
+    socketDir: string;
     logDir: string;
 }
 
