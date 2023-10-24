@@ -156,6 +156,7 @@ export class DarwinOVM {
             timeout: 0,
             windowsHide: true,
             stdio: [null, "pipe", "pipe"],
+            cwd: this.options.targetDir,
         });
 
         this.gvproxyProcess.once("close", (_code, _signal) => {
@@ -193,6 +194,7 @@ export class DarwinOVM {
             timeout: 0,
             windowsHide: true,
             stdio: [null, "pipe", "pipe"],
+            cwd: this.options.targetDir,
         });
 
         this.vfkitProcess.once("close", (_code, _signal) => {
