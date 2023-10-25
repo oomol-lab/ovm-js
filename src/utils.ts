@@ -2,8 +2,8 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import net from "node:net";
 import http from "node:http";
-import AdmZIP from "adm-zip";
-import { constants } from "node:fs";
+import unzipper from "unzipper";
+import { constants, createReadStream } from "node:fs";
 
 export const isExecFile = (p: string): Promise<void> => {
     return fs.access(p, constants.X_OK);
@@ -27,15 +27,13 @@ export const copy = (origin: string, target: string): Promise<void> => {
 };
 
 export const unzip = async (zipFile: string, target: string): Promise<void> => {
-    const zip = new AdmZIP(zipFile);
-
+    const stream = createReadStream(zipFile).pipe(unzipper.Extract({ path: target }));
     return new Promise((resolve, reject) => {
-        zip.extractAllToAsync(target, true, false, (error) => {
-            if (error) {
-                return reject(error);
-            } else {
-                return resolve();
-            }
+        stream.on("error", (error) => {
+            reject(error);
+        });
+        stream.on("close", () => {
+            resolve();
         });
     });
 };

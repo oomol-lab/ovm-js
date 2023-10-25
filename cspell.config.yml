@@ -1,15 +1,16 @@
 language: en
 words:
-  - oomol
   - gvproxy
-  - vfkit
-  - treeshake
-  - vsock
-  - virtiofs
-  - unixgram
-  - podman
   - libpod
+  - oomol
+  - podman
+  - treeshake
+  - unixgram
+  - unzipper
+  - vfkit
   - virtio
+  - virtiofs
+  - vsock
 dictionaries:
   - companies
   - softwareTerms
