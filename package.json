@@ -44,12 +44,14 @@
     "@oomol-lab/tsconfig": "^0.0.1",
     "@types/adm-zip": "^0.5.3",
     "@types/node": "^20.6.5",
+    "@types/unzipper": "^0.10.8",
     "tsup": "^7.2.0",
     "typescript": "^5.2.2"
   },
   "dependencies": {
     "adm-zip": "^0.5.10",
     "node-ssh": "^13.1.0",
-    "remitter": "^0.3.2"
+    "remitter": "^0.3.2",
+    "unzipper": "^0.10.14"
   }
 }
