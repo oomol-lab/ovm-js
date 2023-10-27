@@ -159,6 +159,7 @@ export class DarwinOVM {
             "-listen", "vsock://:1024",
             "-listen", `unix://${this.socket.vfkit}`,
             "-listen", `unix://${this.socket.network}`,
+            "--disable-orphan-process",
         ], {
             timeout: 0,
             windowsHide: true,
@@ -197,6 +198,7 @@ export class DarwinOVM {
             "--device", "virtio-fs,sharedDir=/Users/,mountTag=vfkit-share-user",
             "--device", "virtio-fs,sharedDir=/var/folders/,mountTag=vfkit-share-var-folders",
             "--device", "virtio-fs,sharedDir=/private/,mountTag=vfkit-share-private",
+            "--disable-orphan-process",
         ], {
             timeout: 0,
             windowsHide: true,
