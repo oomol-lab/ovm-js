@@ -11,15 +11,21 @@ import {
     sleep,
     unzip,
 } from "./utils";
-import type { OVMDarwinOptions, OVMEventData } from "./type";
+import { Logger } from "./logger";
 import os from "node:os";
 import cp from "node:child_process";
-import type { ChildProcessWithoutNullStreams } from "node:child_process";
-import { Logger } from "./logger";
+import path from "node:path";
 import { NodeSSH } from "node-ssh";
 import { Remitter } from "remitter";
-import type { OVMInfo } from "./type";
-import path from "node:path";
+import { createMacPowerMonitor } from "@oomol-lab/mac-power-monitor";
+import type { ChildProcessWithoutNullStreams } from "node:child_process";
+import {
+    type OVMInfo,
+    type OVMDarwinOptions,
+    type OVMEventData,
+    type OVMVfkitFullState,
+    OVMVfkitState,
+} from "./type";
 
 export class DarwinOVM {
     private readonly remitter = new Remitter<OVMEventData>();
@@ -33,6 +39,8 @@ export class DarwinOVM {
 
     private gvproxyProcess?: ChildProcessWithoutNullStreams;
     private vfkitProcess?: ChildProcessWithoutNullStreams;
+
+    private monitor = createMacPowerMonitor();
 
     private logGVProxy: Logger;
     private logVFKit: Logger;
@@ -113,8 +121,7 @@ export class DarwinOVM {
         this.sshPort = await findUsablePort(2223);
     }
 
-    public on(event: "ready", listener: () => void): void;
-    public on(event: "close", listener: () => void): void;
+    public on(event: "ready" | "close" | "vmPause" | "vmResume", listener: () => void): void;
     public on(event: "error", listener: (error: Error) => void): void;
     public on(event: keyof OVMEventData, listener: (...args: any[]) => void): void {
         this.remitter.on(event, listener);
@@ -229,7 +236,7 @@ export class DarwinOVM {
         );
 
         await sleep(1000);
-        await pRetry(() => request.get(`http://localhost:${this.podmanPort}/libpod/_ping`, 100), {
+        await pRetry(() => request.get(`http://localhost:${this.podmanPort}/libpod/_ping`, null, 100), {
             interval: 10,
             retries: 20,
         });
@@ -254,10 +261,12 @@ export class DarwinOVM {
         await ssh.execCommand(commands.join(" && "));
         ssh.dispose();
 
+        this.addPowerMonitor();
         this.remitter.emit("ready");
     }
 
     private async internalStop(): Promise<void> {
+        this.removePowerMonitor();
         await request.post("http://vf/vm/state",
             JSON.stringify({
                 state: "Stop",
@@ -296,7 +305,85 @@ export class DarwinOVM {
     }
 
     public async resetPath(): Promise<void> {
-        await this.internalStop();
         await this.overridePath(true);
+    }
+
+    private addPowerMonitor() {
+        this.removePowerMonitor();
+        this.monitor.listenOnWillSleep(async () => {
+            await this.vmPause();
+        });
+        this.monitor.listenOnWillWake(async () => {
+            await this.vmResume();
+        });
+    }
+
+    private removePowerMonitor() {
+        this.monitor.unregisterAll();
+    }
+
+    public async vmState(): Promise<OVMVfkitFullState> {
+        const currentState = await request.get("http://vf/vm/state",
+            this.socket.vfkitRestful,
+            100,
+        );
+
+        return JSON.parse(currentState);
+    }
+
+    public async vmPause(): Promise<void> {
+        await pRetry(async () => {
+            const { state: currentState, canPause } = await this.vmState();
+            if (currentState === OVMVfkitState.VirtualMachineStatePaused || currentState === OVMVfkitState.VirtualMachineStatePausing) {
+                this.remitter.emit("vmPause");
+                return;
+            }
+
+            if (!canPause) {
+                throw new Error("vm can not pause");
+            }
+
+            await request.post("http://vf/vm/state",
+                JSON.stringify({
+                    state: "Pause",
+                }),
+                this.socket.vfkitRestful,
+                100,
+            );
+
+            this.remitter.emit("vmPause");
+        }, {
+            retries: 3,
+            interval: 500,
+        });
+    }
+
+    public async vmResume(): Promise<void> {
+        await pRetry(async () => {
+            const { state: currentState, canResume } = await this.vmState();
+            if (currentState === OVMVfkitState.VirtualMachineStateRunning || currentState === OVMVfkitState.VirtualMachineStateResuming) {
+                this.remitter.emit("vmResume");
+                return;
+            }
+
+            if (!canResume) {
+                throw new Error("vm can not resume");
+            }
+
+            await request.post("http://vf/vm/state",
+                JSON.stringify({
+                    state: "Resume",
+                }),
+                this.socket.vfkitRestful,
+                100,
+            );
+
+            this.remitter.emit("vmResume");
+        }, {
+            retries: 3,
+            interval: 500,
+        });
+
+
     }
 }

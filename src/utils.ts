@@ -87,15 +87,27 @@ export const pRetry = <T>(fn: () => Promise<T>, options: { retries: number, inte
 };
 
 class Request {
-    public get(url: string, timeout: number) {
-        return new Promise<void>((resolve, reject) => {
-            http.get(url, { timeout }, (response) => {
-                const { statusCode } = response;
-                if (!statusCode || statusCode >= 400) {
-                    reject(new Error(`Request Failed. Status Code: ${statusCode}`));
-                } else {
-                    resolve();
-                }
+    public get(url: string, socketPath: string | null, timeout: number) {
+        return new Promise<string>((resolve, reject) => {
+            http.get(url, {
+                timeout,
+                socketPath: socketPath ?? undefined,
+            }, (response) => {
+                response.setEncoding("utf8");
+
+                let body = "";
+                response.on("data", (chunk) => {
+                    body += chunk;
+                });
+
+                response.on("end", () => {
+                    const { statusCode } = response;
+                    if (!statusCode || statusCode >= 400) {
+                        return reject(new Error(`Request Failed. Status Code: ${statusCode}, Response: ${body}`));
+                    } else {
+                        resolve(body);
+                    }
+                });
             })
                 .once("error", (error) => {
                     reject(error);
@@ -113,13 +125,14 @@ class Request {
             }, (response) => {
                 const { statusCode } = response;
                 if (!statusCode || statusCode >= 400) {
+                    response.resume();
                     reject(new Error(`Request Failed. Status Code: ${statusCode}`));
                 } else {
                     resolve();
                 }
             });
 
-            req.on("error", (error) => {
+            req.once("error", (error) => {
                 reject(error);
             });
 
