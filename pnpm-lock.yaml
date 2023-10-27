@@ -1,10 +1,13 @@
-lockfileVersion: '6.0'
+lockfileVersion: '6.1'
 
 settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
 dependencies:
+  '@oomol-lab/mac-power-monitor':
+    specifier: ^1.0.0
+    version: 1.0.0
   adm-zip:
     specifier: ^0.5.10
     version: 0.5.10
@@ -410,6 +413,10 @@ packages:
     transitivePeerDependencies:
       - supports-color
     dev: true
+
+  /@oomol-lab/mac-power-monitor@1.0.0:
+    resolution: {integrity: sha512-KseIQ3F68QXXWbD79kD9o4d3lsvH+SCvbBKZ/LzS/LyLUcpbxe57tTp5/4vCsTHaXORNX1pqxmOFqWWlHnzCJQ==}
+    dev: false
 
   /@oomol-lab/tsconfig@0.0.1:
     resolution: {integrity: sha512-T45eJq+qKK6++ccNORZ3XyFRJ5MOf6dqazFcgx8SP4yJTJ5EsQhg0sECLI1hRsakjW6N1NxOCuQ4Z+XU37FPSQ==}
