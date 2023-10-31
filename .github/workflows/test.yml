@@ -1,11 +1,11 @@
-name: Rlease
+name: Test
 on: 
   pull_request:
     branches: 
       - main
 
 jobs:
-  release:
+  test:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
