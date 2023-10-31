@@ -253,7 +253,6 @@ export class DarwinOVM {
         });
 
         const commands = [
-            "ls",
             "mkdir -p {/User/,/var/folders/,/private/}",
             "mount -t virtiofs vfkit-share-user /User/",
             "mount -t virtiofs vfkit-share-var-folders /var/folders/",
@@ -304,6 +303,31 @@ export class DarwinOVM {
             this.socket.network,
             500,
         );
+    }
+
+    public async clocksync(): Promise<void> {
+        const ssh = new NodeSSH();
+        await ssh.connect({
+            host: "127.0.0.1",
+            username: "root",
+            password: "1",
+            port: this.sshPort,
+            timeout: 20,
+        });
+
+        const commands = [
+            `date -s @${Math.floor(Date.now() / 1000)}`,
+            "systemctl restart chrony",
+        ];
+
+        await pRetry(async () => {
+            await ssh.execCommand(commands.join(" && "));
+        }, {
+            retries: 3,
+            interval: 100,
+        });
+
+        ssh.dispose();
     }
 
     public async resetPath(): Promise<void> {
@@ -386,6 +410,6 @@ export class DarwinOVM {
             interval: 500,
         });
 
-
+        await this.clocksync();
     }
 }
