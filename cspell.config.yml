@@ -11,6 +11,8 @@ words:
   - virtio
   - virtiofs
   - vsock
+  - btrfs
+  - chrony
 dictionaries:
   - companies
   - softwareTerms
