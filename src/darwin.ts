@@ -6,10 +6,13 @@ import {
     isExecFile,
     mkdir,
     pRetry,
+    readFile,
     request,
     rm,
     sleep,
+    tryParseJSON,
     unzip,
+    writeFile,
 } from "./utils";
 import { Logger } from "./logger";
 import os from "node:os";
@@ -70,15 +73,38 @@ export class DarwinOVM {
         ]);
     }
 
+    private async matchVersions() {
+        const versionFilePath = path.join(this.options.targetDir, "versions.json");
+
+        if (!await existsFile(versionFilePath)) {
+            return (_key) => false;
+        }
+
+        const versionFileContent = await readFile(versionFilePath);
+        const versions = tryParseJSON<OVMDarwinOptions["versions"]>(versionFileContent);
+
+        if (!versions) {
+            return (_key) => false;
+        }
+
+        return (key: string) => {
+            return versions[key] === this.options.versions[key];
+        };
+    }
+
     private async overridePath(forceOverride: boolean): Promise<void> {
         await mkdir(this.options.targetDir);
+
+        const matchVersion = await this.matchVersions();
+
         await Promise.all(Object.keys(this.options.originPath)
             .map(async (k) => {
                 const filename = path.basename(this.options.originPath[k]);
                 const isZIP = filename.toLowerCase().endsWith(".zip");
                 const targetPath = path.join(this.options.targetDir, isZIP ? filename.slice(0, -4) : filename);
 
-                if (forceOverride || !await existsFile(targetPath)) {
+                const shouldOverride = forceOverride || !await existsFile(targetPath) || !matchVersion(k);
+                if (shouldOverride) {
                     if (isZIP) {
                         await unzip(this.options.originPath[k], this.options.targetDir);
                     } else {
@@ -88,6 +114,8 @@ export class DarwinOVM {
 
                 this.path[k] = targetPath;
             }));
+
+        await writeFile(path.join(this.options.targetDir, "versions.json"), this.options.versions);
     }
 
     private async initPath() {

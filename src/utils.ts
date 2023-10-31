@@ -57,6 +57,29 @@ export const mkdir = async (p: string): Promise<void> => {
     }
 };
 
+export const readFile = async (p: string): Promise<string> => {
+    const raw = await fs.readFile(p, "utf8");
+    return raw.trim();
+};
+
+export const writeFile = async (p: string, data: string | Record<string, string>): Promise<void> => {
+    const d = typeof data === "string" ? data : JSON.stringify(data, null, 2);
+    await fs.writeFile(p, d, "utf8");
+};
+
+export const tryParseJSON = <T>(raw: string): T | false => {
+    const r = raw.trim();
+    if (!r.startsWith("{") || !r.endsWith("}")) {
+        return false;
+    }
+
+    try {
+        return JSON.parse(r) as T;
+    } catch (_error) {
+        return false;
+    }
+};
+
 export const rm = (p: string): Promise<void> => {
     return fs.rm(p, { force: true });
 };
