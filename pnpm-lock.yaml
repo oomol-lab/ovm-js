@@ -8,6 +8,9 @@ dependencies:
   '@oomol-lab/mac-power-monitor':
     specifier: ^1.0.0
     version: 1.0.0
+  '@oomol-lab/sparse-file':
+    specifier: ^1.0.0
+    version: 1.0.0
   adm-zip:
     specifier: ^0.5.10
     version: 0.5.10
@@ -416,6 +419,10 @@ packages:
 
   /@oomol-lab/mac-power-monitor@1.0.0:
     resolution: {integrity: sha512-KseIQ3F68QXXWbD79kD9o4d3lsvH+SCvbBKZ/LzS/LyLUcpbxe57tTp5/4vCsTHaXORNX1pqxmOFqWWlHnzCJQ==}
+    dev: false
+
+  /@oomol-lab/sparse-file@1.0.0:
+    resolution: {integrity: sha512-5z2ZpXRlnKrocX0zD1ALM9sIWLw6IVMNgXVLoiAdWJ9CeGjRxZgMoa86Wa4uNZIBfoy6BY0sPikPxSa+8kjouA==}
     dev: false
 
   /@oomol-lab/tsconfig@0.0.1:

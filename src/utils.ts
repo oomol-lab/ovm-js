@@ -81,7 +81,12 @@ export const tryParseJSON = <T>(raw: string): T | false => {
 };
 
 export const rm = (p: string): Promise<void> => {
-    return fs.rm(p, { force: true });
+    return fs.rm(p, {
+        force: true,
+        recursive: true,
+        maxRetries: 3,
+        retryDelay: 100,
+    });
 };
 
 export const sleep = (ms: number): Promise<void> => {

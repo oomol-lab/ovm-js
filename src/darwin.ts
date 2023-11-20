@@ -21,6 +21,7 @@ import path from "node:path";
 import { NodeSSH } from "node-ssh";
 import { Remitter } from "remitter";
 import { createMacPowerMonitor } from "@oomol-lab/mac-power-monitor";
+import { createSparse } from "@oomol-lab/sparse-file";
 import type { ChildProcessWithoutNullStreams } from "node:child_process";
 import {
     type OVMInfo,
@@ -60,6 +61,7 @@ export class DarwinOVM {
         await ovm.initSocket();
         await ovm.initLogs();
         await ovm.initPort();
+        await ovm.initDisks();
         return ovm;
     }
 
@@ -149,6 +151,21 @@ export class DarwinOVM {
         this.sshPort = await findUsablePort(2223);
     }
 
+    private async initDisks(): Promise<[void, void]> {
+        return Promise.all([
+            this.createDisk("data", 8 * 1024 * 1024 * 1024 * 1024),
+            this.createDisk("tmp", 1 * 1024 * 1024 * 1024 * 1024),
+        ]);
+    }
+
+    private async createDisk(name: string, size: number): Promise<void> {
+        const p = path.join(this.options.targetDir, `${name}.img`);
+
+        if (!await existsFile(p)) {
+            return createSparse(p, size);
+        }
+    }
+
     public on(event: "ready" | "close" | "vmPause" | "vmResume", listener: () => void): void;
     public on(event: "error", listener: (error: Error) => void): void;
     public on(event: keyof OVMEventData, listener: (...args: any[]) => void): void {
@@ -226,6 +243,8 @@ export class DarwinOVM {
             "--device", "virtio-fs,sharedDir=/Users/,mountTag=vfkit-share-user",
             "--device", "virtio-fs,sharedDir=/var/folders/,mountTag=vfkit-share-var-folders",
             "--device", "virtio-fs,sharedDir=/private/,mountTag=vfkit-share-private",
+            "--device", `virtio-blk,path=${this.options.targetDir}/tmp.img`,
+            "--device", `virtio-blk,path=${this.options.targetDir}/data.img`,
             "--disable-orphan-process",
         ], {
             timeout: 0,

@@ -50,6 +50,7 @@
   },
   "dependencies": {
     "@oomol-lab/mac-power-monitor": "^1.0.0",
+    "@oomol-lab/sparse-file": "^1.0.0",
     "adm-zip": "^0.5.10",
     "node-ssh": "^13.1.0",
     "remitter": "^0.3.2",
