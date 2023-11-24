@@ -340,18 +340,6 @@ export class DarwinOVM {
         this.remitter.dispose();
     }
 
-    public async exportPort(hostPort: number, guestPort: number): Promise<void> {
-        await request.post(
-            "http://unix/services/forwarder/expose",
-            JSON.stringify({
-                local: `:${hostPort}`,
-                remote: `192.168.127.2:${guestPort}`,
-            }),
-            this.socket.network,
-            500,
-        );
-    }
-
     public async clocksync(): Promise<void> {
         const ssh = new NodeSSH();
         await ssh.connect({
