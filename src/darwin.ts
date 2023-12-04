@@ -236,7 +236,7 @@ export class DarwinOVM {
             "--cpus", `${Math.floor(os.cpus().length / 2)}`,
             "--memory", "2048",
             "--restful-uri", `unix://${this.socket.vfkitRestful}`,
-            "--bootloader", `linux,kernel=${this.path.kernel},initrd=${this.path.initrd},cmdline="root=/dev/vda fb_tunnels=none"`,
+            "--bootloader", `linux,kernel=${this.path.kernel},initrd=${this.path.initrd},cmdline="fb_tunnels=none"`,
             "--device", `virtio-blk,path=${this.path.rootfs}`,
             "--device", `virtio-vsock,port=1024,socketURL=${this.socket.vfkit}`,
             "--device", "virtio-fs,sharedDir=/Users/,mountTag=vfkit-share-user",
