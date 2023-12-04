@@ -18,6 +18,7 @@ import { Logger } from "./logger";
 import os from "node:os";
 import cp from "node:child_process";
 import path from "node:path";
+import net from "node:net";
 import { NodeSSH } from "node-ssh";
 import { Remitter } from "remitter";
 import { createMacPowerMonitor } from "@oomol-lab/mac-power-monitor";
@@ -31,6 +32,35 @@ import {
     OVMVfkitState,
 } from "./type";
 
+class Mount {
+    public static list = [
+        {
+            tag: "vfkit-share-user",
+            source: "/Users",
+        },
+        {
+            tag: "vfkit-share-var-folders",
+            source: "/var/folders",
+        },
+        {
+            tag: "vfkit-share-private",
+            source: "/private",
+        },
+    ];
+
+    public static toVFKit(): string[] {
+        return Mount.list.flatMap((m) => {
+            return ["--device", `virtio-fs,sharedDir=${m.source},mountTag=${m.tag}`];
+        });
+    }
+
+    public static toFSTAB(): string[] {
+        return Mount.list.map((m) => {
+            return `${m.tag} ${m.source} virtiofs defaults 0 0`;
+        });
+    }
+}
+
 export class DarwinOVM {
     private readonly remitter = new Remitter<OVMEventData>();
 
@@ -39,6 +69,7 @@ export class DarwinOVM {
         network: "",
         vfkit: "",
         vfkitRestful: "",
+        initrdVSock: "",
     };
 
     private gvproxyProcess?: ChildProcessWithoutNullStreams;
@@ -129,6 +160,7 @@ export class DarwinOVM {
         this.socket.vfkit = path.join(this.options.socketDir, "vfkit.sock");
         this.socket.network = path.join(this.options.socketDir, "network.sock");
         this.socket.vfkitRestful = path.join(this.options.socketDir, "vfkit-restful.sock");
+        this.socket.initrdVSock = path.join(this.options.socketDir, "initrd-vsock.sock");
 
         await this.removeSocket();
     }
@@ -138,6 +170,7 @@ export class DarwinOVM {
             rm(this.socket.vfkit),
             rm(this.socket.network),
             rm(this.socket.vfkitRestful),
+            rm(this.socket.initrdVSock),
         ]);
     }
 
@@ -232,6 +265,7 @@ export class DarwinOVM {
     }
 
     private async startVFKit() {
+        const ignition = this.ignition();
         this.vfkitProcess = cp.spawn(this.path.vfkit, [
             "--cpus", `${Math.floor(os.cpus().length / 2)}`,
             "--memory", "2048",
@@ -239,9 +273,8 @@ export class DarwinOVM {
             "--bootloader", `linux,kernel=${this.path.kernel},initrd=${this.path.initrd},cmdline="fb_tunnels=none"`,
             "--device", `virtio-blk,path=${this.path.rootfs}`,
             "--device", `virtio-vsock,port=1024,socketURL=${this.socket.vfkit}`,
-            "--device", "virtio-fs,sharedDir=/Users/,mountTag=vfkit-share-user",
-            "--device", "virtio-fs,sharedDir=/var/folders/,mountTag=vfkit-share-var-folders",
-            "--device", "virtio-fs,sharedDir=/private/,mountTag=vfkit-share-private",
+            "--device", `virtio-vsock,port=1025,socketURL=${this.socket.initrdVSock}`,
+            ...Mount.toVFKit(),
             "--device", `virtio-blk,path=${this.options.targetDir}/tmp.img`,
             "--device", `virtio-blk,path=${this.options.targetDir}/data.img`,
             "--disable-orphan-process",
@@ -265,9 +298,30 @@ export class DarwinOVM {
             this.logVFKit.info(data.toString());
         });
 
+        await ignition;
         await pRetry(async () => assertExistsFile(this.socket.vfkitRestful), {
             interval: 50,
             retries: 200,
+        });
+    }
+
+    private async ignition(): Promise<void> {
+        const mount = `echo -e ${Mount.toFSTAB().join("\\\\n")} >> /mnt/overlay/etc/fstab`;
+        const cmd = [mount].join(";");
+
+        return new Promise((resolve, reject) => {
+            const server = net.createServer((conn) => {
+                conn.write(cmd);
+                conn.end();
+                resolve();
+            });
+
+            server.listen(this.socket.initrdVSock);
+
+            server.once("error", (error) => {
+                server.close();
+                reject(error);
+            });
         });
     }
 
@@ -287,25 +341,6 @@ export class DarwinOVM {
             interval: 10,
             retries: 20,
         });
-
-        const ssh = new NodeSSH();
-        await ssh.connect({
-            host: "127.0.0.1",
-            username: "root",
-            password: "1",
-            port: this.sshPort,
-            timeout: 20,
-        });
-
-        const commands = [
-            "mkdir -p {/User/,/var/folders/,/private/}",
-            "mount -t virtiofs vfkit-share-user /User/",
-            "mount -t virtiofs vfkit-share-var-folders /var/folders/",
-            "mount -t virtiofs vfkit-share-private /private/",
-        ];
-
-        await ssh.execCommand(commands.join(" && "));
-        ssh.dispose();
 
         this.addPowerMonitor();
         this.remitter.emit("ready");
