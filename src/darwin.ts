@@ -212,10 +212,9 @@ export class DarwinOVM {
             cwd: this.options.targetDir,
         });
 
-        this.gvproxyProcess.once("close", (_code, _signal) => {
-            if (!this.vfkitProcess?.killed) {
-                this.vfkitProcess?.kill();
-            }
+        this.gvproxyProcess.once("exit", (_code, _signal) => {
+            // eslint-disable-next-line @typescript-eslint/no-empty-function
+            this.stop().catch((_error) => {});
         });
 
         this.gvproxyProcess.stdout.on("data", (data) => {
@@ -253,10 +252,9 @@ export class DarwinOVM {
             cwd: this.options.targetDir,
         });
 
-        this.vfkitProcess.once("close", (_code, _signal) => {
-            if (!this.gvproxyProcess?.killed) {
-                this.gvproxyProcess?.kill();
-            }
+        this.vfkitProcess.once("exit", (_code, _signal) => {
+            // eslint-disable-next-line @typescript-eslint/no-empty-function
+            this.stop().catch((_error) => {});
         });
 
         this.vfkitProcess.stdout.on("data", (data) => {
