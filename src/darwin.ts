@@ -3,6 +3,7 @@ import {
     copy,
     existsFile,
     findUsablePort,
+    generateSSHKey,
     isExecFile,
     mkdir,
     pRetry,
@@ -83,6 +84,8 @@ export class DarwinOVM {
     private podmanPort: number;
     private sshPort: number;
 
+    private publicKey: string;
+
     private constructor(private options: OVMDarwinOptions) {}
 
     public static async create(options: OVMDarwinOptions): Promise<DarwinOVM> {
@@ -91,6 +94,7 @@ export class DarwinOVM {
         await ovm.initPath();
         await ovm.initSocket();
         await ovm.initLogs();
+        await ovm.initSSHKey();
         await ovm.initPort();
         await ovm.initDisks();
         return ovm;
@@ -182,6 +186,17 @@ export class DarwinOVM {
     private async initPort(): Promise<void> {
         this.podmanPort = await findUsablePort(58_125);
         this.sshPort = await findUsablePort(2223);
+    }
+
+    private async initSSHKey(): Promise<void> {
+        await mkdir(this.options.sshKeyDir, 0o700);
+        const privatePath = path.join(this.options.sshKeyDir, "ovm");
+
+        if (!await existsFile(privatePath)) {
+            await generateSSHKey(privatePath);
+        }
+
+        this.publicKey = await readFile(`${privatePath}.pub`);
     }
 
     private async initDisks(): Promise<[void, void]> {
@@ -307,7 +322,8 @@ export class DarwinOVM {
 
     private async ignition(): Promise<void> {
         const mount = `echo -e ${Mount.toFSTAB().join("\\\\n")} >> /mnt/overlay/etc/fstab`;
-        const cmd = [mount].join(";");
+        const authorizedKeys = `mkdir -p /mnt/overlay/root/.ssh; echo ${this.publicKey} >> /mnt/overlay/root/.ssh/authorized_keys`;
+        const cmd = [mount, authorizedKeys].join(";");
 
         return new Promise((resolve, reject) => {
             const server = net.createServer((conn) => {

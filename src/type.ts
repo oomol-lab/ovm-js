@@ -9,6 +9,7 @@ export interface OVMDarwinOptions {
     targetDir: string;
     socketDir: string;
     logDir: string;
+    sshKeyDir: string;
     versions: OVMDarwinOptions["originPath"]
 }
 
