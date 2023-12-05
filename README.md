@@ -38,6 +38,7 @@ function async main() {
         socketDir: "/example/socket",
         logDir: "/example/log",
         targetDir: "/example/target",
+        sshKeyDir: "/example/ssh",
         versions: {
             gvproxy: "1.0.0",
             vfkit: "1.0.0",
@@ -83,6 +84,10 @@ The format of the log file name is as follows:
 #### targetDir
 
 In order to address the issues that may occur when some files are damaged or other malfunctions happen, the program will first copy the files from the `originPath` to this directory. This allows for the restoration of files by calling `.resetPath()` when problems arise. For example, when forcibly shutting down the virtual machine (power off), certain service statuses in rootfs will be affected and cannot be restored. This mechanism is used to resolve this issue.
+
+#### sshKeyDir
+
+Store the SSH key pairs required to connect to the virtual machine.
 
 #### versions
 

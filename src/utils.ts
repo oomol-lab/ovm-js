@@ -4,6 +4,8 @@ import net from "node:net";
 import http from "node:http";
 import unzipper from "unzipper";
 import { constants, createReadStream } from "node:fs";
+import { exec } from "node:child_process";
+import { promisify } from "node:util";
 
 export const isExecFile = (p: string): Promise<void> => {
     return fs.access(p, constants.X_OK);
@@ -43,17 +45,24 @@ export const rename = async (oldPath: string, newName: string): Promise<void> =>
     await fs.rename(oldPath, path.join(dir, newName));
 };
 
-export const mkdir = async (p: string): Promise<void> => {
+export const mkdir = async (p: string, mode?: number): Promise<void> => {
     try {
         await assertExistsFile(p);
     } catch (_error) {
         await fs.mkdir(p, { recursive: true });
+        if (mode) {
+            await fs.chmod(p, mode);
+        }
         return;
     }
 
     const stat = await fs.stat(p);
     if (!stat.isDirectory()) {
         throw new Error(`${p} is not a directory`);
+    }
+
+    if (mode && (stat.mode & 0o777) !== mode) {
+        await fs.chmod(p, mode);
     }
 };
 
@@ -205,4 +214,10 @@ export const findUsablePort = async (startPort: number): Promise<number> => {
     }
 
     throw new Error(`no available port from ${startPort} to ${maxPort}, last error: ${lastError}`);
+};
+
+export const generateSSHKey = async(privatePath: string): Promise<void> => {
+    const p = promisify(exec);
+
+    await p(`ssh-keygen -t ed25519 -f ${path.join(privatePath)} -N ""`);
 };
