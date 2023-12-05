@@ -71,6 +71,7 @@ export class DarwinOVM {
         vfkit: "",
         vfkitRestful: "",
         initrdVSock: "",
+        readySock: "",
     };
 
     private gvproxyProcess?: ChildProcessWithoutNullStreams;
@@ -86,6 +87,8 @@ export class DarwinOVM {
 
     private publicKey: string;
 
+    private ready: Promise<void>;
+
     private constructor(private options: OVMDarwinOptions) {}
 
     public static async create(options: OVMDarwinOptions): Promise<DarwinOVM> {
@@ -97,6 +100,7 @@ export class DarwinOVM {
         await ovm.initSSHKey();
         await ovm.initPort();
         await ovm.initDisks();
+        ovm.initReady();
         return ovm;
     }
 
@@ -165,6 +169,7 @@ export class DarwinOVM {
         this.socket.network = path.join(this.options.socketDir, "network.sock");
         this.socket.vfkitRestful = path.join(this.options.socketDir, "vfkit-restful.sock");
         this.socket.initrdVSock = path.join(this.options.socketDir, "initrd-vsock.sock");
+        this.socket.readySock = path.join(this.options.socketDir, "ready.sock");
 
         await this.removeSocket();
     }
@@ -175,6 +180,7 @@ export class DarwinOVM {
             rm(this.socket.network),
             rm(this.socket.vfkitRestful),
             rm(this.socket.initrdVSock),
+            rm(this.socket.readySock),
         ]);
     }
 
@@ -197,6 +203,31 @@ export class DarwinOVM {
         }
 
         this.publicKey = await readFile(`${privatePath}.pub`);
+    }
+
+    private initReady(): void {
+        this.ready = new Promise((resolve, reject) => {
+            const id = setTimeout(() => {
+                server.close();
+                reject(new Error("ready timeout"));
+            }, 1000 * 10);
+
+            const server = net.createServer((conn) => {
+                conn.on("data", () => {
+                    clearTimeout(id);
+                    conn.end();
+                    resolve();
+                });
+            });
+
+            server.listen(this.socket.readySock);
+
+            server.once("error", (error) => {
+                clearTimeout(id);
+                server.close();
+                reject(error);
+            });
+        });
     }
 
     private async initDisks(): Promise<[void, void]> {
@@ -274,8 +305,8 @@ export class DarwinOVM {
         });
 
         await pRetry(async () => assertExistsFile(this.socket.network), {
-            interval: 50,
-            retries: 200,
+            interval: 100,
+            retries: 3,
         });
     }
 
@@ -289,6 +320,7 @@ export class DarwinOVM {
             "--device", `virtio-blk,path=${this.path.rootfs}`,
             "--device", `virtio-vsock,port=1024,socketURL=${this.socket.vfkit}`,
             "--device", `virtio-vsock,port=1025,socketURL=${this.socket.initrdVSock}`,
+            "--device", `virtio-vsock,port=1026,socketURL=${this.socket.readySock}`,
             ...Mount.toVFKit(),
             "--device", `virtio-blk,path=${this.options.targetDir}/tmp.img`,
             "--device", `virtio-blk,path=${this.options.targetDir}/data.img`,
@@ -314,16 +346,27 @@ export class DarwinOVM {
         });
 
         await ignition;
-        await pRetry(async () => assertExistsFile(this.socket.vfkitRestful), {
-            interval: 50,
-            retries: 200,
-        });
     }
 
     private async ignition(): Promise<void> {
         const mount = `echo -e ${Mount.toFSTAB().join("\\\\n")} >> /mnt/overlay/etc/fstab`;
         const authorizedKeys = `mkdir -p /mnt/overlay/root/.ssh; echo ${this.publicKey} >> /mnt/overlay/root/.ssh/authorized_keys`;
-        const cmd = [mount, authorizedKeys].join(";");
+        const readyService = [
+            "[Unit]",
+            "Requires=dev-virtio\\\\\\\\\\\\\\\\x2dports-vsock.device",
+            "After=sshd.socket sshd.service podman.service podman.socket",
+            "OnFailure=emergency.target",
+            "OnFailureJobMode=isolate",
+            "[Service]",
+            "Type=oneshot",
+            "RemainAfterExit=yes",
+            "ExecStart=/bin/sh -c 'echo Ready | socat - VSOCK-CONNECT:2:1026'",
+            "[Install]",
+            "RequiredBy=default.target",
+        ].join("\\\\n");
+        const readyServiceCmd = `echo -e "${readyService}" > /mnt/overlay/usr/lib/systemd/system/ready.service`;
+
+        const cmd = [mount, authorizedKeys, readyServiceCmd].join(";");
 
         return new Promise((resolve, reject) => {
             const server = net.createServer((conn) => {
@@ -342,6 +385,7 @@ export class DarwinOVM {
     }
 
     private async initVM(): Promise<void> {
+        await this.ready;
         await request.post(
             "http://unix/services/forwarder/expose",
             JSON.stringify({
@@ -352,7 +396,6 @@ export class DarwinOVM {
             500,
         );
 
-        await sleep(1000);
         await pRetry(() => request.get(`http://localhost:${this.podmanPort}/libpod/_ping`, null, 100), {
             interval: 10,
             retries: 20,
