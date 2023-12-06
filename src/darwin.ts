@@ -72,6 +72,7 @@ export class DarwinOVM {
         vfkitRestful: "",
         initrdVSock: "",
         readySock: "",
+        podmanSock: "",
     };
 
     private gvproxyProcess?: ChildProcessWithoutNullStreams;
@@ -82,7 +83,6 @@ export class DarwinOVM {
     private logGVProxy: Logger;
     private logVFKit: Logger;
 
-    private podmanPort: number;
     private sshPort: number;
 
     private publicKey: string;
@@ -170,6 +170,7 @@ export class DarwinOVM {
         this.socket.vfkitRestful = path.join(this.options.socketDir, "vfkit-restful.sock");
         this.socket.initrdVSock = path.join(this.options.socketDir, "initrd-vsock.sock");
         this.socket.readySock = path.join(this.options.socketDir, "ready.sock");
+        this.socket.podmanSock = path.join(this.options.socketDir, "podman.sock");
 
         await this.removeSocket();
     }
@@ -181,6 +182,7 @@ export class DarwinOVM {
             rm(this.socket.vfkitRestful),
             rm(this.socket.initrdVSock),
             rm(this.socket.readySock),
+            rm(this.socket.podmanSock),
         ]);
     }
 
@@ -190,7 +192,6 @@ export class DarwinOVM {
     }
 
     private async initPort(): Promise<void> {
-        this.podmanPort = await findUsablePort(58_125);
         this.sshPort = await findUsablePort(2223);
     }
 
@@ -254,7 +255,7 @@ export class DarwinOVM {
 
     public info(): OVMInfo {
         return {
-            podmanPort: this.podmanPort,
+            podmanSocket: this.socket.podmanSock,
             sshPort: this.sshPort,
         };
     }
@@ -284,6 +285,10 @@ export class DarwinOVM {
             "-listen", "vsock://:1024",
             "-listen", `unix://${this.socket.vfkit}`,
             "-listen", `unix://${this.socket.network}`,
+            "-forward-user", "root",
+            "-forward-identity", path.join(this.options.sshKeyDir, "ovm"),
+            "-forward-sock", `${this.socket.podmanSock}`,
+            "-forward-dest", "/run/podman/podman.sock",
             "--disable-orphan-process",
         ], {
             timeout: 0,
@@ -375,20 +380,6 @@ export class DarwinOVM {
 
     private async initVM(): Promise<void> {
         await this.ready;
-        await request.post(
-            "http://unix/services/forwarder/expose",
-            JSON.stringify({
-                local: `:${this.podmanPort}`,
-                remote: "192.168.127.2:58125",
-            }),
-            this.socket.network,
-            500,
-        );
-
-        await pRetry(() => request.get(`http://localhost:${this.podmanPort}/libpod/_ping`, null, 100), {
-            interval: 10,
-            retries: 20,
-        });
 
         this.addPowerMonitor();
         this.remitter.emit("ready");
