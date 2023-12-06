@@ -210,12 +210,13 @@ export class DarwinOVM {
             const id = setTimeout(() => {
                 server.close();
                 reject(new Error("ready timeout"));
-            }, 1000 * 10);
+            }, 1000 * 30);
 
             const server = net.createServer((conn) => {
                 conn.on("data", () => {
                     clearTimeout(id);
                     conn.end();
+                    server.close();
                     resolve();
                 });
             });
@@ -351,27 +352,15 @@ export class DarwinOVM {
     private async ignition(): Promise<void> {
         const mount = `echo -e ${Mount.toFSTAB().join("\\\\n")} >> /mnt/overlay/etc/fstab`;
         const authorizedKeys = `mkdir -p /mnt/overlay/root/.ssh; echo ${this.publicKey} >> /mnt/overlay/root/.ssh/authorized_keys`;
-        const readyService = [
-            "[Unit]",
-            "Requires=dev-virtio\\\\\\\\\\\\\\\\x2dports-vsock.device",
-            "After=sshd.socket sshd.service podman.service podman.socket",
-            "OnFailure=emergency.target",
-            "OnFailureJobMode=isolate",
-            "[Service]",
-            "Type=oneshot",
-            "RemainAfterExit=yes",
-            "ExecStart=/bin/sh -c 'echo Ready | socat - VSOCK-CONNECT:2:1026'",
-            "[Install]",
-            "RequiredBy=default.target",
-        ].join("\\\\n");
-        const readyServiceCmd = `echo -e "${readyService}" > /mnt/overlay/usr/lib/systemd/system/ready.service`;
+        const ready = "echo -e \"echo Ready | socat - VSOCK-CONNECT:2:1026\" > /mnt/overlay/opt/ready.command";
 
-        const cmd = [mount, authorizedKeys, readyServiceCmd].join(";");
+        const cmd = [mount, authorizedKeys, ready].join(";");
 
         return new Promise((resolve, reject) => {
             const server = net.createServer((conn) => {
                 conn.write(cmd);
                 conn.end();
+                server.close();
                 resolve();
             });
 
