@@ -22,7 +22,7 @@ export interface OVMEventData {
 }
 
 export interface OVMInfo {
-    podmanPort: number;
+    podmanSocket: string;
     sshPort: number;
 }
 
