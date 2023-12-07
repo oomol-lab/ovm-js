@@ -15,10 +15,6 @@ yarn add @oomol-lab/ovm
 npm install @oomol-lab/ovm
 ```
 
-## TODO
-
-* Automatic expansion for btrfs
-
 ## Usage
 
 ### Simple Example
