@@ -357,7 +357,13 @@ export class DarwinOVM {
         const cmd = [mount, authorizedKeys, ready].join(";");
 
         return new Promise((resolve, reject) => {
+            const id = setTimeout(() => {
+                server.close();
+                reject(new Error("ignition timeout"));
+            }, 1000 * 10);
+
             const server = net.createServer((conn) => {
+                clearTimeout(id);
                 conn.write(cmd);
                 conn.end();
                 server.close();
@@ -367,6 +373,7 @@ export class DarwinOVM {
             server.listen(this.socket.initrdVSock);
 
             server.once("error", (error) => {
+                clearTimeout(id);
                 server.close();
                 reject(error);
             });
