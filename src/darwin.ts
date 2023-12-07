@@ -4,6 +4,7 @@ import {
     existsFile,
     findUsablePort,
     generateSSHKey,
+    getLocalTZ,
     isExecFile,
     mkdir,
     pRetry,
@@ -89,6 +90,8 @@ export class DarwinOVM {
 
     private ready: Promise<void>;
 
+    private localTZ: string;
+
     private constructor(private options: OVMDarwinOptions) {}
 
     public static async create(options: OVMDarwinOptions): Promise<DarwinOVM> {
@@ -101,6 +104,7 @@ export class DarwinOVM {
             ovm.initSSHKey(),
             ovm.initPort(),
             ovm.initDisks(),
+            ovm.initTZ(),
         ]);
         ovm.initReady();
         return ovm;
@@ -236,6 +240,10 @@ export class DarwinOVM {
         });
     }
 
+    private async initTZ(): Promise<void> {
+        this.localTZ = await getLocalTZ();
+    }
+
     private async initDisks(): Promise<[void, void]> {
         return Promise.all([
             this.createDisk("data", 8 * 1024 * 1024 * 1024 * 1024),
@@ -353,8 +361,9 @@ export class DarwinOVM {
         const mount = `echo -e ${Mount.toFSTAB().join("\\\\n")} >> /mnt/overlay/etc/fstab`;
         const authorizedKeys = `mkdir -p /mnt/overlay/root/.ssh; echo ${this.publicKey} >> /mnt/overlay/root/.ssh/authorized_keys`;
         const ready = "echo -e \"echo Ready | socat - VSOCK-CONNECT:2:1026\" > /mnt/overlay/opt/ready.command";
+        const tz = `ln -sf /usr/share/zoneinfo/${this.localTZ} /mnt/overlay/etc/localtime; echo ${this.localTZ} > /mnt/overlay/etc/timezone`;
 
-        const cmd = [mount, authorizedKeys, ready].join(";");
+        const cmd = [mount, authorizedKeys, ready, tz].join(";");
 
         return new Promise((resolve, reject) => {
             const id = setTimeout(() => {
