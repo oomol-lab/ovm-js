@@ -221,3 +221,11 @@ export const generateSSHKey = async(privatePath: string): Promise<void> => {
 
     await p(`ssh-keygen -t ed25519 -f ${path.join(privatePath)} -N ""`);
 };
+
+export const getLocalTZ = async(): Promise<string> => {
+    const tzPath = await fs.readlink("/etc/localtime", {
+        encoding: "utf8",
+    });
+
+    return tzPath.replace("/var/db/timezone/zoneinfo/", "");
+};
