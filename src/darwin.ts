@@ -216,10 +216,11 @@ export class DarwinOVM {
 
     private initReady(): void {
         this.ready = new Promise((resolve, reject) => {
+            const timeout = this.options.timeout?.ready ?? 1000 * 30;
             const id = setTimeout(() => {
                 server.close();
                 reject(new Error("ready timeout"));
-            }, 1000 * 30);
+            }, timeout);
 
             const server = net.createServer((conn) => {
                 conn.on("data", () => {
@@ -367,7 +368,7 @@ export class DarwinOVM {
         const cmd = [mount, authorizedKeys, ready, tz].join(";");
 
         return new Promise((resolve, reject) => {
-            const timeout = this.options.timeout ?? 1000 * 20;
+            const timeout = this.options.timeout?.ignition ?? 1000 * 10;
             const id = setTimeout(() => {
                 server.close();
                 reject(new Error("ignition timeout"));
