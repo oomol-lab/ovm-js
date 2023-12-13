@@ -333,6 +333,7 @@ export class DarwinOVM {
             ...Mount.toVFKit(),
             "--device", `virtio-blk,path=${this.options.targetDir}/tmp.img`,
             "--device", `virtio-blk,path=${this.options.targetDir}/data.img`,
+            "--device", "virtio-rng",
             "--disable-orphan-process",
         ], {
             timeout: 0,
