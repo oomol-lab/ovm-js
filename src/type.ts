@@ -11,7 +11,10 @@ export interface OVMDarwinOptions {
     logDir: string;
     sshKeyDir: string;
     versions: OVMDarwinOptions["originPath"]
-    timeout?: number;
+    timeout?: {
+        ready?: number;
+        ignition?: number;
+    }
 }
 
 export interface OVMEventData {
