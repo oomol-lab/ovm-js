@@ -45,7 +45,7 @@ function async main() {
         ovmPath: "/example/ovm",
     });
 
-    ovm.on("status", async (datum) => {
+    ovm.on("status", (datum) => {
         switch(datum.name) {
             case OVMStatusName.Initializing:
                 console.log("Initializing");
@@ -66,7 +66,7 @@ function async main() {
                 console.log("Exit");
                 break;
             case OVMStatusName.Error:
-                console.log("Error:", datum.error);
+                console.log("Error:", datum.message);
                 break;
         }
     })
