@@ -20,31 +20,58 @@ npm install @oomol-lab/ovm
 ### Simple Example
 
 ```typescript
-import { createDarwinOVM } from "@oomol-lab/ovm"
+import { createDarwinOVM, OVMStatusName } from "@oomol-lab/ovm"
 
 function async main() {
     const ovm = await createDarwinOVM({
-        originPath: {
-            gvproxy: "/example/gvproxy",
-            vfkit: "/example/vfkit",
+        cpu: 4,
+        memory: 6144,
+        name: "test",
+        logDir: "/example/log",
+        socketDir: "/example/socket",
+        sshKeyDir: "/example/ssh",
+        targetDir: "/example/target",
+        linuxPath: {
             initrd: "/example/initrd",
             kernel: "/example/bzImage", // If it is an arm64 system, then it is `Image`.
-            rootfs: "/example/rootfs.btrfs", // or `/example/rootfs.btrfs.zip`
+            rootfs: "/example/rootfs.erofs",
         },
-        socketDir: "/example/socket",
-        logDir: "/example/log",
-        targetDir: "/example/target",
-        sshKeyDir: "/example/ssh",
         versions: {
-            gvproxy: "1.0.0",
-            vfkit: "1.0.0",
             initrd: "1.0.0",
             kernel: "1.0.0",
             rootfs: "1.0.0",
+            dataImg: "1.0.0",
         },
+        ovmPath: "/example/ovm",
     });
 
-    await ovm.start();
+    ovm.on("status", async (datum) => {
+        switch(datum.name) {
+            case OVMStatusName.Initializing:
+                console.log("Initializing");
+                break;
+            case OVMStatusName.GVProxyReady:
+                console.log("GVProxyReady");
+                break;
+            case OVMStatusName.IgnitionProgress:
+                console.log("IgnitionProgress");
+                break;
+            case OVMStatusName.IgnitionDone:
+                console.log("IgnitionDone");
+                break;
+            case OVMStatusName.VMReady:
+                console.log("VMReady");
+                break;
+            case OVMStatusName.Exit:
+                console.log("Exit");
+                break;
+            case OVMStatusName.Error:
+                console.log("Error:", datum.error);
+                break;
+        }
+    })
+
+    ovm.start();
 }
 ```
 
@@ -52,42 +79,57 @@ function async main() {
 
 ### Instance Params
 
-#### originPath
+#### cpu
 
-`gvproxy` and `vfkit` can be obtained in the *Release* section of the [ovm-osx-toolchain] project. The `initrd`, `kernel`, and `rootfs` can be obtained from the [ovm-core] project.
+The number of CPUs allocated to the virtual machine.
 
-Regarding the `kernel` field, if the system is Mac ARM64 (M series), the kernel file needs to be uncompressed (not **bzImage**). For more information on this, please refer to: [kernel arm64 booting]
+#### memory
 
-Currently, we only support the *btrfs* and *btrfs.zip* file formats for the `rootfs`. If it is a *btrfs.zip* file, we will automatically decompress it.
+The amount of memory allocated to the virtual machine (in MB).
 
-#### socketDir
+#### name
 
-During the startup process of the virtual machine, `gvproxy` and `vfkit` will create some socket files. To facilitate management, we request a directory to store these socket files. Each time the `.start()` method is called, the program will first delete the existing socket files and then recreate them, as `gvproxy` and `vfkit` may not automatically delete them in certain situations (such as receiving a `SIGKILL` event).
+The name of the virtual machine.
 
 #### logDir
 
-We request to provide a directory to store the logs of the latest 3 instances of `gvproxy` and `vfkit`, for the purpose of troubleshooting.
+We request to provide a directory to store the logs of the latest 3 instances, for the purpose of troubleshooting.
 
 The format of the log file name is as follows:
 
-* gvproxy.log (latest)
-* gvproxy.2.log
-* gvproxy.3.log
-* vfkit.log (latest)
-* vfkit.2.log
-* vfkit.3.log
+* ${name}-ovm.log (latest)
+* ${name}-ovm.2.log
+* ${name}-ovm.3.log
+* ${name}-vfkit.log (latest)
+* ${name}-vfkit.2.log
+* ${name}-vfkit.3.log
+* ...
 
-#### targetDir
+#### socketDir
 
-In order to address the issues that may occur when some files are damaged or other malfunctions happen, the program will first copy the files from the `originPath` to this directory. This allows for the restoration of files by calling `.resetPath()` when problems arise. For example, when forcibly shutting down the virtual machine (power off), certain service statuses in rootfs will be affected and cannot be restored. This mechanism is used to resolve this issue.
+During the startup process of the virtual machine, [ovm] will create some socket files. To facilitate management, we request a directory to store these socket files. Each time the `.start()` method is called, the program will first delete the existing socket files and then recreate them.
 
 #### sshKeyDir
 
 Store the SSH key pairs required to connect to the virtual machine.
 
+#### targetDir
+
+In order to address the issues that may occur when some files are damaged or other malfunctions happen, the program will first copy the files from the `linuxPath` to this directory.
+
+#### linuxPath
+
+The `initrd`, `kernel`, and `rootfs` can be obtained from the [ovm-core] project.
+
+Regarding the `kernel` field, if the system is Mac ARM64 (M series), the kernel file needs to be uncompressed (not **bzImage**). For more information on this, please refer to: [kernel arm64 booting]
+
 #### versions
 
-It is used to manage whether a file should be overwritten. For example, when upgrading `gvproxy`, it is necessary to overwrite the original `gvproxy` to ensure the upgrade takes effect.
+It is used to manage whether a file should be overwritten. For example, when upgrading `initrd`, it is necessary to overwrite the original `initrd` to ensure the upgrade takes effect.
+
+#### ovmPath
+
+The directory where the [ovm] program is located.
 
 ### Instance Methods
 
@@ -95,7 +137,7 @@ It is used to manage whether a file should be overwritten. For example, when upg
 
 Start the virtual machine.
 
-Return: `Promise<void>`
+Return: `void`
 
 #### `.stop()`
 
@@ -103,39 +145,29 @@ Stop the virtual machine.
 
 Return: `Promise<void>`
 
-#### `.resetPath()`
+#### `.pause()`
 
-Reset the files in the `targetDir` directory to the original files in the `originPath` directory. Ignore the `versions` mechanism and **force overwrite**.
+Pause the virtual machine.
+
+Return: `Promise<void>`
+
+#### `.resume()`
+
+Resume the virtual machine.
+
+Return: `Promise<void>`
 
 #### `.info`
 
-Get the host ports for *podman* and *ssh*.
+Get the host socket file for *podman*.
 
-Return: `{ podmanPort: number, sshPort: number }`
+Return: `{ podmanSocketPath: string }`
 
-#### `.exportPort(hostPort: number, guestPort: number)`
-
-Expose the ports of the virtual machine on a specific port on the host machine, enabling mutual communication.
-
-Return: `Promise<void>`
-
-#### `.clocksync()`
-
-Synchronize the system time inside the virtual machine. This operation will first set the virtual machine time to the current time of the host machine, and then attempt to synchronize it with the ntp server using `chrony`.
-
-Currently, synchronization will be performed with the following NTP servers (for details, please see: [ntp server]):
-
-* pool.ntp.org
-* time.apple.com
-* time.windows.com
-
-Return: `Promise<void>`
-
-#### `.vmState()`
+#### `.state()`
 
 Get the current status of the virtual machine and the values that can be changed.
 
-Return: `Promise<{ state: "state", canPause: boolean, canResume: boolean, canStop: boolean, canHardStop: boolean }>`
+Return: `Promise<{ state: "state", canStart: boolean, canPause: boolean, canResume: boolean, canRequestStop: boolean, canStop: boolean }>`
 
 *state* values are as follows:
 
@@ -150,35 +182,12 @@ Return: `Promise<{ state: "state", canPause: boolean, canResume: boolean, canSto
 * VirtualMachineStateSaving
 * VirtualMachineStateRestoring
 
-#### `.vmPause()`
+#### `.on("status", listener)`
 
-Pause the virtual machine.
+Add a listener function for the status event.
 
-Return: `Promise<void>`
+* `(datum: OVMEventData["status"]) => void`
 
-#### `.vmResume()`
-
-Resume the virtual machine.
-
-When the virtual machine successfully resumes from the suspended state, `.clocksync()` will be automatically invoked.
-
-Return: `Promise<void>`
-
-#### `.on(eventName, listener)`
-
-Add a listener function for the specified event.
-
-* `ready`: `() => void`
-* `close`: `() => void`
-* `vmPause`: `() => void`
-* `vmResume`: `() => void`
-* `error`: `(error: Error) => void`
-
-## Notice
-
-When MacOS is in sleep mode, we automatically pause the virtual machine. When it resumes from sleep mode, the virtual machine will be resumed as well. The reason for doing this is that when the MacOS is in sleep mode for more than 30-40 minutes, the virtual machine kernel may crash due to issues related to CPU clock synchronization. To avoid this problem, we automatically pause and resume the virtual machine, and after resuming, we automatically invoke `.clocksync()` for time synchronization.
-
-[ovm-osx-toolchain]: https://github.com/oomol-lab/ovm-osx-toolchain
+[ovm]: https://github.com/oomol-lab/ovm
 [ovm-core]: https://github.com/oomol-lab/ovm-core
 [kernel arm64 booting]: https://www.kernel.org/doc/Documentation/arm64/booting.txt
-[ntp server]: https://github.com/oomol-lab/ovm-core/blob/338c767339467724573654166131236bbb65fa6e/patches/rootfs/refactor_package_add_chrony_conf_in_chrony.patch#L14-L16
