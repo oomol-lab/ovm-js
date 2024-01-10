@@ -1,7 +1,9 @@
 export interface OVMDarwinOptions {
-    originPath: {
-        gvproxy: string;
-        vfkit: string;
+    name: string;
+    cpu: number;
+    memory: number;
+    ovmPath: string;
+    linuxPath: {
         initrd: string;
         kernel: string;
         rootfs: string;
@@ -10,30 +12,34 @@ export interface OVMDarwinOptions {
     socketDir: string;
     logDir: string;
     sshKeyDir: string;
-    versions: OVMDarwinOptions["originPath"]
-    timeout?: {
-        ready?: number;
-        ignition?: number;
-    }
+    versions: OVMDarwinOptions["linuxPath"] & { dataImg: string; };
+}
+
+export enum OVMStatusName {
+    Initializing = "Initializing",
+    GVProxyReady = "GVProxyReady",
+    IgnitionProgress = "IgnitionProgress",
+    IgnitionDone = "IgnitionDone",
+    VMReady = "VMReady",
+    Exit = "Exit",
+    Error = "Error",
 }
 
 export interface OVMEventData {
-    ready: void,
-    close: void,
-    vmPause: void,
-    vmResume: void,
-    error: Error,
+    status: {
+        name: OVMStatusName,
+        message: string,
+    }
 }
 
 export interface OVMInfo {
-    podmanSocket: string;
-    sshPort: number;
+    podmanSocketPath: string;
 }
 
 /**
  * @see https://github.com/Code-Hex/vz/blob/bd29a7ea3d39465c4224bfb01e990e8c220a8449/virtualization.go#L23
  */
-export enum OVMVfkitState {
+export enum OVMVzState {
     VirtualMachineStateStopped = "VirtualMachineStateStopped",
     VirtualMachineStateRunning = "VirtualMachineStateRunning",
     VirtualMachineStatePaused = "VirtualMachineStatePaused",
@@ -46,10 +52,11 @@ export enum OVMVfkitState {
     VirtualMachineStateRestoring = "VirtualMachineStateRestoring",
 }
 
-export interface OVMVfkitFullState {
-    state: OVMVfkitState;
+export interface OVMState {
+    state: OVMVzState;
+    canStart: boolean;
     canPause: boolean;
     canResume: boolean;
-    canStop: boolean;
-    canHardStop: boolean;
+    canRequestStop: boolean;
+    CanStop: boolean;
 }
