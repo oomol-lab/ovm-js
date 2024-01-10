@@ -139,9 +139,13 @@ Start the virtual machine.
 
 Return: `void`
 
+#### `.requestStop()`
+
+Request to stop the virtual machine.
+
 #### `.stop()`
 
-Stop the virtual machine.
+Stop the virtual machine. (FORCE SHUTDOWN)
 
 Return: `Promise<void>`
 
