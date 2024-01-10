@@ -6,9 +6,11 @@ export const createDarwinOVM = (options: OVMDarwinOptions): Promise<DarwinOVM> =
 };
 
 export type {
+    OVMStatusName,
+    OVMEventData,
     OVMDarwinOptions,
     OVMInfo,
-    OVMVfkitState,
-    OVMVfkitFullState,
+    OVMState,
+    OVMVzState,
 } from "./type";
 export type { DarwinOVM };
