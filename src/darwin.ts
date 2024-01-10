@@ -28,7 +28,7 @@ export class DarwinOVM {
         this.eventSocketPath = await restful.start();
     }
 
-    public initRequest(): void {
+    private initRequest(): void {
         this.request = new Request(this.options.socketDir, this.options.name);
     }
 
