@@ -13,6 +13,7 @@ export interface OVMDarwinOptions {
     logDir: string;
     sshKeyDir: string;
     versions: OVMDarwinOptions["linuxPath"] & { dataImg: string; };
+    powerSaveMode: boolean;
 }
 
 export enum OVMStatusName {
