@@ -131,6 +131,12 @@ It is used to manage whether a file should be overwritten. For example, when upg
 
 The directory where the [ovm] program is located.
 
+#### powerSaveMode
+
+Enable power save mode.
+
+Pause the guest when the Mac goes to sleep, resume the guest when the Mac wakes up, and synchronize the time.
+
 ### Instance Methods
 
 #### `.start()`
