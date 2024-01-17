@@ -1,4 +1,5 @@
 import cp from "node:child_process";
+import fs from "node:fs/promises";
 import { Remitter } from "remitter";
 import { OVMStatusName } from "./type";
 import type { OVMDarwinOptions, OVMEventData, OVMInfo, OVMState } from "./type";
@@ -14,7 +15,10 @@ export class DarwinOVM {
 
     public static async create(options: OVMDarwinOptions): Promise<DarwinOVM> {
         const ovm = new DarwinOVM(options);
-        await ovm.initEventRestful();
+        await Promise.all([
+            ovm.initEventRestful(),
+            ovm.initPath(),
+        ]);
         ovm.initRequest();
         return ovm;
     }
@@ -30,6 +34,13 @@ export class DarwinOVM {
 
     private initRequest(): void {
         this.request = new Request(this.options.socketDir, this.options.name);
+    }
+
+    private async initPath(): Promise<void> {
+        await fs.mkdir(this.options.targetDir, {
+            recursive: true,
+            mode: 0o755,
+        });
     }
 
     public start(): void {
