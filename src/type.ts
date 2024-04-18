@@ -14,6 +14,7 @@ export interface OVMDarwinOptions {
     sshKeyDir: string;
     versions: OVMDarwinOptions["linuxPath"] & { dataImg: string; };
     powerSaveMode: boolean;
+    extendShareDir?: string,
 }
 
 export enum OVMStatusName {

@@ -76,6 +76,7 @@ export class DarwinOVM {
             "-event-socket-path", this.eventSocketPath,
             "-bind-pid", String(process.pid),
             `-power-save-mode=${String(this.options.powerSaveMode)}`,
+            `-extend-share-dir=${this.options.extendShareDir || ""}`,
         ], {
             timeout: 0,
             windowsHide: true,
