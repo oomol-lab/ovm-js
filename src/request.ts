@@ -1,6 +1,36 @@
 import path from "node:path";
 import http from "node:http";
-import type { OVMInfo, OVMState } from "./type";
+import type { OVMDarwinInfo, OVMDarwinState } from "./type";
+import type { RequestOptions } from "http";
+
+const generateRequest = async (option: RequestOptions): Promise<string> => {
+    return new Promise<string>((resolve, reject) => {
+        http.request({
+            timeout: 200,
+            ...option,
+        }, (response) => {
+            response.setEncoding("utf8");
+
+            let body = "";
+            response.on("data", (chunk) => {
+                body += chunk;
+            });
+
+            response.on("end", () => {
+                const { statusCode } = response;
+                if (!statusCode || statusCode >= 400) {
+                    return reject(new Error(`Request Failed. Status Code: ${statusCode}, Response: ${body}`));
+                }
+
+                return resolve(body);
+            });
+        })
+            .once("error", (error) => {
+                reject(error);
+            })
+            .end();
+    });
+};
 
 export class Request {
     private readonly socketPath: string;
@@ -10,33 +40,10 @@ export class Request {
     }
 
     private async request(p: string, method: string): Promise<string> {
-        return new Promise<string>((resolve, reject) => {
-            http.request({
-                socketPath: this.socketPath,
-                path: `http://ovm/${p}`,
-                method: method,
-                timeout: 200,
-            }, (response) => {
-                response.setEncoding("utf8");
-
-                let body = "";
-                response.on("data", (chunk) => {
-                    body += chunk;
-                });
-
-                response.on("end", () => {
-                    const { statusCode } = response;
-                    if (!statusCode || statusCode >= 400) {
-                        return reject(new Error(`Request Failed. Status Code: ${statusCode}, Response: ${body}`));
-                    } else {
-                        resolve(body);
-                    }
-                });
-            })
-                .once("error", (error) => {
-                    reject(error);
-                })
-                .end();
+        return await generateRequest({
+            socketPath: this.socketPath,
+            path: `http://ovm/${p}`,
+            method: method,
         });
     }
 
@@ -58,12 +65,12 @@ export class Request {
         }
     }
 
-    public async state(): Promise<OVMState> {
-        return JSON.parse(await this.send("state")) as OVMState;
+    public async state(): Promise<OVMDarwinState> {
+        return JSON.parse(await this.send("state")) as OVMDarwinState;
     }
 
-    public async info(): Promise<OVMInfo> {
-        return JSON.parse(await this.send("info")) as OVMInfo;
+    public async info(): Promise<OVMDarwinInfo> {
+        return JSON.parse(await this.send("info")) as OVMDarwinInfo;
     }
 
     public async pause(): Promise<void> {

@@ -1,13 +1,15 @@
 import cp from "node:child_process";
 import fs from "node:fs/promises";
 import { Remitter } from "remitter";
-import { OVMStatusName } from "./type";
-import type { OVMDarwinOptions, OVMEventData, OVMInfo, OVMState } from "./type";
+import { OVMDarwinStatusName } from "./type";
+import type { OVMDarwinOptions, OVMDarwinEventData, OVMDarwinInfo, OVMDarwinState } from "./type";
 import { Restful } from "./event_restful";
 import { Request } from "./request";
+import path from "node:path";
+import { tmpdir } from "node:os";
 
 export class DarwinOVM {
-    private readonly remitter = new Remitter<OVMEventData>();
+    private readonly remitter = new Remitter<OVMDarwinEventData>();
     private eventSocketPath: string;
     private request: Request;
 
@@ -23,13 +25,24 @@ export class DarwinOVM {
         return ovm;
     }
 
-    public on(event: keyof OVMEventData, listener: (datum: OVMEventData["status"]) => void): void {
+    public on(event: keyof OVMDarwinEventData, listener: (datum: OVMDarwinEventData["status"]) => void): void {
         this.remitter.on(event, listener);
     }
 
     private async initEventRestful(): Promise<void> {
-        const restful = new Restful(this.remitter);
-        this.eventSocketPath = await restful.start();
+        const restful = new Restful((name, message) => {
+            if (name in OVMDarwinStatusName) {
+                this.remitter.emit("status", {
+                    name: name as OVMDarwinStatusName,
+                    message,
+                });
+            }
+        });
+
+        const dir = await fs.mkdtemp(path.join(tmpdir(), "ovm-"));
+        const socketPath = path.join(dir, "event-restful.sock");
+        restful.start(socketPath);
+        this.eventSocketPath = socketPath;
     }
 
     private initRequest(): void {
@@ -90,17 +103,17 @@ export class DarwinOVM {
         launchTimeout
             .catch(() => {
                 this.remitter.emit("status", {
-                    name: OVMStatusName.Error,
+                    name: OVMDarwinStatusName.Error,
                     message: "OVM start timeout",
                 });
             });
     }
 
-    public async info(): Promise<OVMInfo> {
+    public async info(): Promise<OVMDarwinInfo> {
         return this.request.info();
     }
 
-    public async state(): Promise<OVMState> {
+    public async state(): Promise<OVMDarwinState> {
         return this.request.state();
     }
 
