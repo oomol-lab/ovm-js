@@ -4,14 +4,14 @@ import { Remitter } from "remitter";
 import { OVMDarwinStatusName } from "./type";
 import type { OVMDarwinOptions, OVMDarwinEventData, OVMDarwinInfo, OVMDarwinState } from "./type";
 import { Restful } from "./event_restful";
-import { Request } from "./request";
+import { RequestDarwin } from "./request";
 import path from "node:path";
 import { tmpdir } from "node:os";
 
 export class DarwinOVM {
     private readonly remitter = new Remitter<OVMDarwinEventData>();
     private eventSocketPath: string;
-    private request: Request;
+    private request: RequestDarwin;
 
     private constructor(private options: OVMDarwinOptions) {}
 
@@ -46,7 +46,7 @@ export class DarwinOVM {
     }
 
     private initRequest(): void {
-        this.request = new Request(this.options.socketDir, this.options.name);
+        this.request = new RequestDarwin(this.options.socketDir, this.options.name);
     }
 
     private async initPath(): Promise<void> {
