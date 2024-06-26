@@ -17,7 +17,7 @@ export interface OVMDarwinOptions {
     extendShareDir?: string,
 }
 
-export enum OVMStatusName {
+export enum OVMDarwinStatusName {
     Initializing = "Initializing",
     GVProxyReady = "GVProxyReady",
     IgnitionProgress = "IgnitionProgress",
@@ -27,21 +27,21 @@ export enum OVMStatusName {
     Error = "Error",
 }
 
-export interface OVMEventData {
+export interface OVMDarwinEventData {
     status: {
-        name: OVMStatusName,
+        name: OVMDarwinStatusName,
         message: string,
     }
 }
 
-export interface OVMInfo {
+export interface OVMDarwinInfo {
     podmanSocketPath: string;
 }
 
 /**
  * @see https://github.com/Code-Hex/vz/blob/bd29a7ea3d39465c4224bfb01e990e8c220a8449/virtualization.go#L23
  */
-export enum OVMVzState {
+export enum OVMDarwinVzState {
     VirtualMachineStateStopped = "VirtualMachineStateStopped",
     VirtualMachineStateRunning = "VirtualMachineStateRunning",
     VirtualMachineStatePaused = "VirtualMachineStatePaused",
@@ -54,8 +54,8 @@ export enum OVMVzState {
     VirtualMachineStateRestoring = "VirtualMachineStateRestoring",
 }
 
-export interface OVMState {
-    state: OVMVzState;
+export interface OVMDarwinState {
+    state: OVMDarwinVzState;
     canStart: boolean;
     canPause: boolean;
     canResume: boolean;
