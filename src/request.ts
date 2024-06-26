@@ -32,7 +32,7 @@ const generateRequest = async (option: RequestOptions): Promise<string> => {
     });
 };
 
-export class Request {
+export class RequestDarwin {
     private readonly socketPath: string;
 
     public constructor(socketDir: string, name: string) {
