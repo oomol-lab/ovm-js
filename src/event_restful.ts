@@ -1,13 +1,13 @@
 import url from "node:url";
 import http from "node:http";
+import { Remitter } from "remitter";
 
 
 export class Restful {
     private readonly server: http.Server;
+    public readonly events = new Remitter();
 
-    public constructor(
-        callback: (name: string, message: string) => void,
-    ) {
+    public constructor() {
         this.server = http.createServer((request, response) => {
             if (!request.url) {
                 return;
@@ -18,7 +18,7 @@ export class Restful {
                 response.statusCode = 200;
                 response.end("ok");
 
-                callback(parsedUrl.query.event as string, parsedUrl.query.message as string);
+                this.events.emit(parsedUrl.query.event as string, parsedUrl.query.message as string);
             } else {
                 response.statusCode = 404;
                 response.end("Not Found");

@@ -6,7 +6,7 @@ export const createDarwinOVM = (options: OVMDarwinOptions): Promise<DarwinOVM> =
 };
 
 export {
-    OVMDarwinStatusName,
+    OVMDarwinAppEventValue,
     OVMDarwinVzState,
 } from "./type";
 

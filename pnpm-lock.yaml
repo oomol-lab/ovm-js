@@ -6,8 +6,8 @@ settings:
 
 dependencies:
   remitter:
-    specifier: ^0.3.2
-    version: 0.3.2
+    specifier: ^0.4.1
+    version: 0.4.1
 
 devDependencies:
   '@oomol-lab/eslint-config-basic':
@@ -296,6 +296,7 @@ packages:
   /@humanwhocodes/config-array@0.11.11:
     resolution: {integrity: sha512-N2brEuAadi0CcdeMXUkhbZB84eskAc8MEX1By6qEchoVywSgXPIjou4rYsl0V3Hj0ZnuGycGCjdNgockbzeWNA==}
     engines: {node: '>=10.10.0'}
+    deprecated: Use @eslint/config-array instead
     dependencies:
       '@humanwhocodes/object-schema': 1.2.1
       debug: 4.3.4
@@ -311,6 +312,7 @@ packages:
 
   /@humanwhocodes/object-schema@1.2.1:
     resolution: {integrity: sha512-ZnQMnLV4e7hDlUvw8H+U8ASL02SS2Gn6+9Ac3wGGLIe7+je2AeAOxPY+izIPJDfFDb7eDjev0Us8MO1iFRN8hA==}
+    deprecated: Use @eslint/object-schema instead
     dev: true
 
   /@jridgewell/gen-mapping@0.3.3:
@@ -1629,8 +1631,8 @@ packages:
       jsesc: 0.5.0
     dev: true
 
-  /remitter@0.3.2:
-    resolution: {integrity: sha512-3d4MEPVWoQeMhgzoBmyAQO+bZMp0rJAi85zf92Neird63cwJZ17GSWRV7VCE+W1fwJO/qx/c665QtDpanyTS3A==}
+  /remitter@0.4.1:
+    resolution: {integrity: sha512-tS1FZX+FGdWnUkPoAPfiIO0FWg35vy+Gvvdbu6EpOI+5A5nAEqn29TXc1FXPmJ8yKic4ajvenAUR+a8H2fPe9g==}
     dev: false
 
   /resolve-from@4.0.0:
@@ -1659,6 +1661,7 @@ packages:
 
   /rimraf@3.0.2:
     resolution: {integrity: sha512-JZkJMZkAGFFPP2YqXZXPbMlMBgsxzE8ILs4lMIX/2o0L9UBw9O/Y3o6wFw/i9YLapcUJWwqbi3kdxIPdC62TIA==}
+    deprecated: Rimraf versions prior to v4 are no longer supported
     hasBin: true
     dependencies:
       glob: 7.1.6

@@ -17,21 +17,18 @@ export interface OVMDarwinOptions {
     extendShareDir?: string,
 }
 
-export enum OVMDarwinStatusName {
+export enum OVMDarwinAppEventValue {
     Initializing = "Initializing",
     GVProxyReady = "GVProxyReady",
     IgnitionProgress = "IgnitionProgress",
     IgnitionDone = "IgnitionDone",
     VMReady = "VMReady",
     Exit = "Exit",
-    Error = "Error",
 }
 
 export interface OVMDarwinEventData {
-    status: {
-        name: OVMDarwinStatusName,
-        message: string,
-    }
+    app: OVMDarwinAppEventValue,
+    error: string,
 }
 
 export interface OVMDarwinInfo {
