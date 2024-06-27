@@ -112,6 +112,10 @@ export class DarwinOVM {
         return this.request.state();
     }
 
+    public async powerSaveMode(enable: boolean): Promise<void> {
+        await this.request.powerSaveMode(enable);
+    }
+
     public async pause(): Promise<void> {
         await this.request.pause();
     }

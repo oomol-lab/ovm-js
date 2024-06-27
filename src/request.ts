@@ -3,9 +3,9 @@ import http from "node:http";
 import type { OVMDarwinInfo, OVMDarwinState } from "./type";
 import type { RequestOptions } from "http";
 
-const generateRequest = async (option: RequestOptions): Promise<string> => {
+const generateRequest = async (option: RequestOptions, body?: Record<string, unknown>): Promise<string> => {
     return new Promise<string>((resolve, reject) => {
-        http.request({
+        const r = http.request({
             timeout: 200,
             ...option,
         }, (response) => {
@@ -27,8 +27,13 @@ const generateRequest = async (option: RequestOptions): Promise<string> => {
         })
             .once("error", (error) => {
                 reject(error);
-            })
-            .end();
+            });
+
+        if (body && option.method !== "GET") {
+            r.write(JSON.stringify(body));
+        }
+
+        r.end();
     });
 };
 
@@ -39,15 +44,15 @@ export class RequestDarwin {
         this.socketPath = path.join(socketDir, `${name}-restful.sock`);
     }
 
-    private async request(p: string, method: string): Promise<string> {
+    private async request(p: string, method: string, body?: Record<string, unknown>): Promise<string> {
         return await generateRequest({
             socketPath: this.socketPath,
             path: `http://ovm/${p}`,
             method: method,
-        });
+        }, body);
     }
 
-    private async send(p: string): Promise<string> {
+    private async send(p: string, body?: Record<string, unknown>): Promise<string> {
         switch (p) {
             case "info":
             case "state": {
@@ -58,6 +63,9 @@ export class RequestDarwin {
             case "request-stop":
             case "stop": {
                 return this.request(p, "POST");
+            }
+            case "power-save-mode": {
+                return this.request(p, "PUT", body);
             }
             default: {
                 throw new Error(`Invalid request: ${p}`);
@@ -87,5 +95,11 @@ export class RequestDarwin {
 
     public async stop(): Promise<void> {
         await this.send("stop");
+    }
+
+    public async powerSaveMode(enable: boolean): Promise<void> {
+        await this.send("power-save-mode", {
+            enable,
+        });
     }
 }
