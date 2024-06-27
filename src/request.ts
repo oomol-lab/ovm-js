@@ -55,7 +55,7 @@ export class RequestDarwin {
             }
             case "pause":
             case "resume":
-            case "requestStop":
+            case "request-stop":
             case "stop": {
                 return this.request(p, "POST");
             }
@@ -82,7 +82,7 @@ export class RequestDarwin {
     }
 
     public async requestStop(): Promise<void> {
-        await this.send("requestStop");
+        await this.send("requests-top");
     }
 
     public async stop(): Promise<void> {
