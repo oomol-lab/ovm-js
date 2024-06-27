@@ -1,19 +1,22 @@
 import cp from "node:child_process";
 import fs from "node:fs/promises";
+import type { EventReceiver } from "remitter";
 import { Remitter } from "remitter";
-import { OVMDarwinStatusName } from "./type";
-import type { OVMDarwinOptions, OVMDarwinEventData, OVMDarwinInfo, OVMDarwinState } from "./type";
+import type { OVMDarwinEventData, OVMDarwinInfo, OVMDarwinOptions, OVMDarwinState } from "./type";
 import { Restful } from "./event_restful";
 import { RequestDarwin } from "./request";
 import path from "node:path";
 import { tmpdir } from "node:os";
 
 export class DarwinOVM {
-    private readonly remitter = new Remitter<OVMDarwinEventData>();
+    public readonly events : EventReceiver<OVMDarwinEventData>;
+    readonly #events: Remitter<OVMDarwinEventData>;
     private eventSocketPath: string;
     private request: RequestDarwin;
 
-    private constructor(private options: OVMDarwinOptions) {}
+    private constructor(private options: OVMDarwinOptions) {
+        this.events = this.#events = new Remitter();
+    }
 
     public static async create(options: OVMDarwinOptions): Promise<DarwinOVM> {
         const ovm = new DarwinOVM(options);
@@ -25,18 +28,13 @@ export class DarwinOVM {
         return ovm;
     }
 
-    public on(event: keyof OVMDarwinEventData, listener: (datum: OVMDarwinEventData["status"]) => void): void {
-        this.remitter.on(event, listener);
-    }
-
     private async initEventRestful(): Promise<void> {
-        const restful = new Restful((name, message) => {
-            if (name in OVMDarwinStatusName) {
-                this.remitter.emit("status", {
-                    name: name as OVMDarwinStatusName,
-                    message,
-                });
-            }
+        const restful = new Restful();
+
+        this.#events.remitAny((o) => {
+            return restful.events.onAny((data) => {
+                o.emit(data.event as keyof OVMDarwinEventData, data.data);
+            });
         });
 
         const dir = await fs.mkdtemp(path.join(tmpdir(), "ovm-"));
@@ -68,7 +66,7 @@ export class DarwinOVM {
                 reject();
             }, 10 * 1000);
 
-            const disposer = this.remitter.once("status", () => {
+            const disposer = this.#events.onceAny(() => {
                 clearTimeout(id);
                 resolve();
             });
@@ -102,10 +100,7 @@ export class DarwinOVM {
 
         launchTimeout
             .catch(() => {
-                this.remitter.emit("status", {
-                    name: OVMDarwinStatusName.Error,
-                    message: "OVM start timeout",
-                });
+                this.#events.emit("error", "OVM start timeout");
             });
     }
 
