@@ -52,7 +52,7 @@ export class DarwinOVM extends RequestDarwin {
 
     public start(): void {
         const versions = Object.keys(this.options.versions).map((key) => {
-            return `${key === "dataImg" ? "data_img" : key}=${this.options.versions[key]}`;
+            return `${key}=${this.options.versions[key]}`;
         }).join(",");
 
         const launchTimeout = new Promise<void>((resolve, reject) => {
