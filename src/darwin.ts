@@ -2,19 +2,20 @@ import cp from "node:child_process";
 import fs from "node:fs/promises";
 import type { EventReceiver } from "remitter";
 import { Remitter } from "remitter";
-import type { OVMDarwinEventData, OVMDarwinInfo, OVMDarwinOptions, OVMDarwinState } from "./type";
+import type { OVMDarwinEventData, OVMDarwinOptions } from "./type";
 import { Restful } from "./event_restful";
 import { RequestDarwin } from "./request";
 import path from "node:path";
 import { tmpdir } from "node:os";
 
-export class DarwinOVM {
+export class DarwinOVM extends RequestDarwin {
     public readonly events : EventReceiver<OVMDarwinEventData>;
     readonly #events: Remitter<OVMDarwinEventData>;
+    private restful: Restful;
     private eventSocketPath: string;
-    private request: RequestDarwin;
 
     private constructor(private options: OVMDarwinOptions) {
+        super(options.socketDir, options.name);
         this.events = this.#events = new Remitter();
     }
 
@@ -24,27 +25,22 @@ export class DarwinOVM {
             ovm.initEventRestful(),
             ovm.initPath(),
         ]);
-        ovm.initRequest();
         return ovm;
     }
 
     private async initEventRestful(): Promise<void> {
-        const restful = new Restful();
+        this.restful = new Restful();
 
         this.#events.remitAny((o) => {
-            return restful.events.onAny((data) => {
+            return this.restful.events.onAny((data) => {
                 o.emit(data.event as keyof OVMDarwinEventData, data.data);
             });
         });
 
         const dir = await fs.mkdtemp(path.join(tmpdir(), "ovm-"));
         const socketPath = path.join(dir, "event-restful.sock");
-        restful.start(socketPath);
+        this.restful.start(socketPath);
         this.eventSocketPath = socketPath;
-    }
-
-    private initRequest(): void {
-        this.request = new RequestDarwin(this.options.socketDir, this.options.name);
     }
 
     private async initPath(): Promise<void> {
@@ -102,33 +98,5 @@ export class DarwinOVM {
             .catch(() => {
                 this.#events.emit("error", "OVM start timeout");
             });
-    }
-
-    public async info(): Promise<OVMDarwinInfo> {
-        return this.request.info();
-    }
-
-    public async state(): Promise<OVMDarwinState> {
-        return this.request.state();
-    }
-
-    public async powerSaveMode(enable: boolean): Promise<void> {
-        await this.request.powerSaveMode(enable);
-    }
-
-    public async pause(): Promise<void> {
-        await this.request.pause();
-    }
-
-    public async resume(): Promise<void> {
-        await this.request.resume();
-    }
-
-    public async requestStop(): Promise<void> {
-        await this.request.requestStop();
-    }
-
-    public async stop(): Promise<void> {
-        await this.request.stop();
     }
 }
