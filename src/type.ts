@@ -12,7 +12,7 @@ export interface OVMDarwinOptions {
     socketDir: string;
     logDir: string;
     sshKeyDir: string;
-    versions: OVMDarwinOptions["linuxPath"] & { dataImg: string; };
+    versions: OVMDarwinOptions["linuxPath"] & { data: string; };
     powerSaveMode: boolean;
     extendShareDir?: string,
 }
