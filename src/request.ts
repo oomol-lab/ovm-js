@@ -1,104 +1,91 @@
 import path from "node:path";
 import http from "node:http";
 import type { OVMDarwinInfo, OVMDarwinState } from "./type";
-import type { RequestOptions } from "http";
 
-const generateRequest = async (option: RequestOptions, body?: Record<string, unknown>): Promise<string> => {
-    return new Promise<string>((resolve, reject) => {
-        const r = http.request({
-            timeout: 200,
-            ...option,
-        }, (response) => {
-            response.setEncoding("utf8");
+enum Method {
+    GET = "GET",
+    POST = "POST",
+    PUT = "PUT",
+}
 
-            let body = "";
-            response.on("data", (chunk) => {
-                body += chunk;
-            });
+const DEFAULT_TIMEOUT = 200;
 
-            response.on("end", () => {
-                const { statusCode } = response;
-                if (!statusCode || statusCode >= 400) {
-                    return reject(new Error(`Request Failed. Status Code: ${statusCode}, Response: ${body}`));
-                }
+abstract class Request {
+    public abstract info(): Promise<OVMDarwinInfo>;
 
-                return resolve(body);
-            });
-        })
-            .once("error", (error) => {
-                reject(error);
-            });
-
-        if (body && option.method !== "GET") {
-            r.write(JSON.stringify(body));
-        }
-
-        r.end();
-    });
-};
-
-export class RequestDarwin {
-    private readonly socketPath: string;
-
-    public constructor(socketDir: string, name: string) {
-        this.socketPath = path.join(socketDir, `${name}-restful.sock`);
+    protected readonly socketPath: string;
+    protected constructor(socketPath: string) {
+        this.socketPath = socketPath;
     }
 
-    private async request(p: string, method: string, body?: Record<string, unknown>): Promise<string> {
-        return await generateRequest({
-            socketPath: this.socketPath,
-            path: `http://ovm/${p}`,
-            method: method,
-        }, body);
-    }
+    protected async do(p: string, method: Method, timeout = DEFAULT_TIMEOUT, body?: Record<string, unknown>): Promise<string> {
+        return new Promise<string>((resolve, reject) => {
+            const r = http.request({
+                timeout,
+                method,
+                socketPath: this.socketPath,
+                path: `http://ovm/${p}`,
+            }, (response) => {
+                response.setEncoding("utf8");
 
-    private async send(p: string, body?: Record<string, unknown>): Promise<string> {
-        switch (p) {
-            case "info":
-            case "state": {
-                return this.request(p, "GET");
+                let body = "";
+                response.on("data", (chunk) => {
+                    body += chunk;
+                });
+
+                response.on("end", () => {
+                    const { statusCode } = response;
+                    if (!statusCode || statusCode >= 400) {
+                        return reject(new Error(`Request Failed. Status Code: ${statusCode}, Response: ${body}`));
+                    }
+
+                    return resolve(body);
+                });
+            })
+                .once("error", (error) => {
+                    reject(error);
+                });
+
+            if (body && method !== "GET") {
+                r.write(JSON.stringify(body));
             }
-            case "pause":
-            case "resume":
-            case "request-stop":
-            case "stop": {
-                return this.request(p, "POST");
-            }
-            case "power-save-mode": {
-                return this.request(p, "PUT", body);
-            }
-            default: {
-                throw new Error(`Invalid request: ${p}`);
-            }
-        }
-    }
 
-    public async state(): Promise<OVMDarwinState> {
-        return JSON.parse(await this.send("state")) as OVMDarwinState;
-    }
-
-    public async info(): Promise<OVMDarwinInfo> {
-        return JSON.parse(await this.send("info")) as OVMDarwinInfo;
-    }
-
-    public async pause(): Promise<void> {
-        await this.send("pause");
-    }
-
-    public async resume(): Promise<void> {
-        await this.send("resume");
+            r.end();
+        });
     }
 
     public async requestStop(): Promise<void> {
-        await this.send("requests-top");
+        await this.do("request-stop", Method.POST);
     }
 
     public async stop(): Promise<void> {
-        await this.send("stop");
+        await this.do("stop", Method.POST);
+    }
+}
+
+export class RequestDarwin extends Request {
+    public constructor(socketDir: string, name: string) {
+        super(path.join(socketDir, `${name}-restful.sock`));
+    }
+
+    public async info(): Promise<OVMDarwinInfo> {
+        return JSON.parse(await this.do("info", Method.GET)) as Promise<OVMDarwinInfo>;
+    }
+
+    public async state(): Promise<OVMDarwinState> {
+        return JSON.parse(await this.do("state", Method.GET)) as Promise<OVMDarwinState>;
+    }
+
+    public async pause(): Promise<void> {
+        await this.do("pause", Method.POST);
+    }
+
+    public async resume(): Promise<void> {
+        await this.do("resume", Method.POST);
     }
 
     public async powerSaveMode(enable: boolean): Promise<void> {
-        await this.send("power-save-mode", {
+        await this.do("power-save-mode", Method.PUT, DEFAULT_TIMEOUT, {
             enable,
         });
     }
