@@ -99,4 +99,9 @@ export class DarwinOVM extends RequestDarwin {
                 this.#events.emit("error", "OVM start timeout");
             });
     }
+
+    public dispose(): void {
+        this.restful.stop();
+        this.#events.dispose();
+    }
 }
