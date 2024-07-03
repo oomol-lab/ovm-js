@@ -59,3 +59,57 @@ export interface OVMDarwinState {
     canRequestStop: boolean;
     CanStop: boolean;
 }
+
+// ----- windows
+
+export interface OVMWindowsInfo {
+    podmanHost: string;
+    podmanPort: number;
+}
+
+export interface OVMWindowsOptions {
+    name: string;
+    ovmPath: string;
+    linuxPath: {
+        rootfs: string;
+    };
+    imageDir: string;
+    logDir: string;
+    versions: OVMWindowsOptions["linuxPath"] & { data: string; };
+}
+
+export enum OVMWindowsSysEventValue {
+    SystemNotSupport = "SystemNotSupport",
+
+    NeedEnableFeature = "NeedEnableFeature",
+    EnableFeaturing = "EnableFeaturing",
+    EnableFeatureFailed = "EnableFeatureFailed",
+    EnableFeatureSuccess = "EnableFeatureSuccess",
+    NeedReboot = "NeedReboot",
+
+    NeedUpdateWSL = "NeedUpdateWSL",
+    UpdatingWSL = "UpdatingWSL",
+    UpdateWSLFailed = "UpdateWSLFailed",
+    UpdateWSLSuccess = "UpdateWSLSuccess",
+}
+
+export enum OVMWindowsAppEventValue {
+    UpdatingRootFS = "UpdatingRootFS",
+    UpdateRootFSFailed = "UpdateRootFSFailed",
+    UpdateRootFSSuccess = "UpdateRootFSSuccess",
+
+    UpdatingData = "UpdatingData",
+    UpdateDataFailed = "UpdateDataFailed",
+    UpdateDataSuccess = "UpdateDataSuccess",
+
+    Starting = "Starting",
+    Ready = "Ready",
+    Exit = "Exit",
+}
+
+export interface OVMWindowsEventData {
+    app: OVMWindowsAppEventValue,
+    sys: OVMWindowsSysEventValue,
+    error: string,
+}
+
