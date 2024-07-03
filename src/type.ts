@@ -22,7 +22,7 @@ export enum OVMDarwinAppEventValue {
     GVProxyReady = "GVProxyReady",
     IgnitionProgress = "IgnitionProgress",
     IgnitionDone = "IgnitionDone",
-    VMReady = "VMReady",
+    Ready = "Ready",
     Exit = "Exit",
 }
 
