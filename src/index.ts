@@ -1,13 +1,20 @@
-import type { OVMDarwinOptions } from "./type";
+import type { OVMDarwinOptions, OVMWindowsOptions } from "./type";
 import { DarwinOVM } from "./darwin";
+import { WindowsOVM } from "./windows";
 
 export const createDarwinOVM = (options: OVMDarwinOptions): Promise<DarwinOVM> => {
     return DarwinOVM.create(options);
 };
 
+export const createWindowsOVM = (options: OVMWindowsOptions): WindowsOVM => {
+    return WindowsOVM.create(options);
+};
+
 export {
     OVMDarwinAppEventValue,
     OVMDarwinVzState,
+    OVMWindowsSysEventValue,
+    OVMWindowsAppEventValue,
 } from "./type";
 
 export type {
@@ -15,5 +22,7 @@ export type {
     OVMDarwinOptions,
     OVMDarwinInfo,
     OVMDarwinState,
+    OVMWindowsOptions,
+    OVMWindowsEventData,
 } from "./type";
-export type { DarwinOVM };
+export type { DarwinOVM, WindowsOVM };

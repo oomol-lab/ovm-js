@@ -1,6 +1,6 @@
 import path from "node:path";
 import http from "node:http";
-import type { OVMDarwinInfo, OVMDarwinState } from "./type";
+import type { OVMDarwinInfo, OVMDarwinState, OVMWindowsInfo } from "./type";
 
 enum Method {
     GET = "GET",
@@ -9,9 +9,10 @@ enum Method {
 }
 
 const DEFAULT_TIMEOUT = 200;
+const NEVER_TIMEOUT = 0;
 
 abstract class Request {
-    public abstract info(): Promise<OVMDarwinInfo>;
+    public abstract info(): Promise<OVMDarwinInfo | OVMWindowsInfo>;
 
     protected readonly socketPath: string;
     protected constructor(socketPath: string) {
@@ -88,5 +89,27 @@ export class RequestDarwin extends Request {
         await this.do("power-save-mode", Method.PUT, DEFAULT_TIMEOUT, {
             enable,
         });
+    }
+}
+
+export class RequestWindows extends Request {
+    public constructor(name: string) {
+        super(`//./pipe/ovm-${name}`);
+    }
+
+    public async info(): Promise<OVMWindowsInfo> {
+        return JSON.parse(await this.do("info", Method.GET)) as OVMWindowsInfo;
+    }
+
+    public async enableFeature(): Promise<void> {
+        await this.do("enable-feature", Method.POST, NEVER_TIMEOUT);
+    }
+
+    public async reboot(): Promise<void> {
+        await this.do("reboot", Method.POST, NEVER_TIMEOUT);
+    }
+
+    public async updateWSL(): Promise<void> {
+        await this.do("update-wsl", Method.PUT, NEVER_TIMEOUT);
     }
 }
