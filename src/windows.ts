@@ -8,12 +8,15 @@ import { RequestWindows } from "./request";
 export class WindowsOVM extends RequestWindows {
     public readonly events : EventReceiver<OVMWindowsEventData>;
     readonly #events: Remitter<OVMWindowsEventData>;
-    private restful: Restful;
-    private readonly restfulNPipeName: string;
+    private restful: Record<"run" | "prepare", Restful>;
+    private readonly restfulNPipeRunName: string;
+    private readonly restfulNPipePrepareName: string;
 
     private constructor(private options: OVMWindowsOptions) {
         super(options.name);
-        this.restfulNPipeName = `ovm-${options.name}-restful`;
+        this.restfulNPipeRunName = `ovm-${options.name}-restful`;
+        this.restfulNPipePrepareName = `ovm-prepare-${options.name}-restful`;
+
         this.events = this.#events = new Remitter();
     }
 
@@ -24,18 +27,63 @@ export class WindowsOVM extends RequestWindows {
     }
 
     private initEventRestful(): void {
-        this.restful = new Restful();
+        this.restful = {
+            run: new Restful(),
+            prepare: new Restful(),
+        };
 
         this.#events.remitAny((o) => {
-            return this.restful.events.onAny((data) => {
-                o.emit(data.event as keyof OVMWindowsEventData, data.data);
+            return this.restful.run.events.onAny((data) => {
+                o.emit(data.event as keyof Omit<OVMWindowsEventData, "prepare">, data.data);
             });
         });
 
-        this.restful.start(`//./pipe/${this.restfulNPipeName}`);
+        this.#events.remitAny((o) => {
+            return this.restful.prepare.events.onAny((data) => {
+                o.emit(data.event as keyof Omit<OVMWindowsEventData, "run">, data.data);
+            });
+        });
+
+        this.restful.run.start(`//./pipe/${this.restfulNPipeRunName}`);
+        this.restful.prepare.start(`//./pipe/${this.restfulNPipePrepareName}`);
     }
 
-    public start(): void {
+    public prepare(): void {
+        const prepareTimeout = new Promise<void>((resolve, reject) => {
+            const id = setTimeout(() => {
+                disposer();
+                // eslint-disable-next-line prefer-promise-reject-errors
+                reject();
+            }, 30 * 1000);
+
+            const disposer = this.#events.onceAny(() => {
+                clearTimeout(id);
+                resolve();
+            });
+        });
+
+        const ovm = cp.spawn(this.options.ovmPath, [
+            "-name", this.options.name,
+            "-log-path", this.options.logDir,
+            "-event-npipe-name", this.restfulNPipePrepareName,
+            "-bind-pid", String(process.pid),
+        ], {
+            timeout: 0,
+            windowsHide: true,
+            detached: true,
+            stdio: "ignore",
+            cwd: this.options.imageDir,
+        });
+
+        ovm.unref();
+
+        prepareTimeout
+            .catch(() => {
+                this.#events.emit("error", "OVM prepare timeout");
+            });
+    }
+
+    public run(): void {
         const versions = Object.keys(this.options.versions).map((key) => {
             return `${key}=${this.options.versions[key]}`;
         }).join(",");
@@ -59,7 +107,7 @@ export class WindowsOVM extends RequestWindows {
             "-image-dir", this.options.imageDir,
             "-rootfs-path", this.options.linuxPath.rootfs,
             "-versions", versions,
-            "-event-npipe-name", this.restfulNPipeName,
+            "-event-npipe-name", this.restfulNPipeRunName,
             "-bind-pid", String(process.pid),
         ], {
             timeout: 0,
@@ -73,7 +121,7 @@ export class WindowsOVM extends RequestWindows {
 
         launchTimeout
             .catch(() => {
-                this.#events.emit("error", "OVM start timeout");
+                this.#events.emit("error", "OVM run timeout");
             });
     }
 }

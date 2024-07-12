@@ -78,7 +78,7 @@ export interface OVMWindowsOptions {
     versions: OVMWindowsOptions["linuxPath"] & { data: string; };
 }
 
-export enum OVMWindowsSysEventValue {
+export enum OVMWindowsPrepareEventValue {
     SystemNotSupport = "SystemNotSupport",
 
     NeedEnableFeature = "NeedEnableFeature",
@@ -93,7 +93,7 @@ export enum OVMWindowsSysEventValue {
     UpdateWSLSuccess = "UpdateWSLSuccess",
 }
 
-export enum OVMWindowsAppEventValue {
+export enum OVMWindowsRunEventValue {
     UpdatingRootFS = "UpdatingRootFS",
     UpdateRootFSFailed = "UpdateRootFSFailed",
     UpdateRootFSSuccess = "UpdateRootFSSuccess",
@@ -104,12 +104,12 @@ export enum OVMWindowsAppEventValue {
 
     Starting = "Starting",
     Ready = "Ready",
-    Exit = "Exit",
 }
 
 export interface OVMWindowsEventData {
-    app: OVMWindowsAppEventValue,
-    sys: OVMWindowsSysEventValue,
+    run: OVMWindowsRunEventValue,
+    prepare: OVMWindowsPrepareEventValue,
     error: string,
+    exit: void,
 }
 

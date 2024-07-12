@@ -15,16 +15,17 @@ abstract class Request {
     public abstract info(): Promise<OVMDarwinInfo | OVMWindowsInfo>;
 
     protected readonly socketPath: string;
+
     protected constructor(socketPath: string) {
         this.socketPath = socketPath;
     }
 
-    protected async do(p: string, method: Method, timeout = DEFAULT_TIMEOUT, body?: Record<string, unknown>): Promise<string> {
+    protected async do(p: string, method: Method, timeout = DEFAULT_TIMEOUT, body?: Record<string, unknown>, socketPath?: string): Promise<string> {
         return new Promise<string>((resolve, reject) => {
             const r = http.request({
                 timeout,
                 method,
-                socketPath: this.socketPath,
+                socketPath: socketPath || this.socketPath,
                 path: `http://ovm/${p}`,
             }, (response) => {
                 response.setEncoding("utf8");
@@ -93,8 +94,11 @@ export class RequestDarwin extends Request {
 }
 
 export class RequestWindows extends Request {
+    private readonly prepareSocketPath: string;
+
     public constructor(name: string) {
         super(`//./pipe/ovm-${name}`);
+        this.prepareSocketPath = `//./pipe/ovm-prepare-${name}`;
     }
 
     public async info(): Promise<OVMWindowsInfo> {
@@ -102,14 +106,14 @@ export class RequestWindows extends Request {
     }
 
     public async enableFeature(): Promise<void> {
-        await this.do("enable-feature", Method.POST, NEVER_TIMEOUT);
+        await this.do("enable-feature", Method.POST, NEVER_TIMEOUT, undefined, this.prepareSocketPath);
     }
 
     public async reboot(): Promise<void> {
-        await this.do("reboot", Method.POST, NEVER_TIMEOUT);
+        await this.do("reboot", Method.POST, NEVER_TIMEOUT, undefined, this.prepareSocketPath);
     }
 
     public async updateWSL(): Promise<void> {
-        await this.do("update-wsl", Method.PUT, NEVER_TIMEOUT);
+        await this.do("update-wsl", Method.PUT, NEVER_TIMEOUT, undefined, this.prepareSocketPath);
     }
 }
