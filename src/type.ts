@@ -23,12 +23,12 @@ export enum OVMDarwinAppEventValue {
     IgnitionProgress = "IgnitionProgress",
     IgnitionDone = "IgnitionDone",
     Ready = "Ready",
-    Exit = "Exit",
 }
 
 export interface OVMDarwinEventData {
     app: OVMDarwinAppEventValue,
     error: string,
+    exit: void,
 }
 
 export interface OVMDarwinInfo {

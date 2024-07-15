@@ -10,12 +10,8 @@ export const createWindowsOVM = (options: OVMWindowsOptions): WindowsOVM => {
     return WindowsOVM.create(options);
 };
 
-export {
-    OVMDarwinAppEventValue,
-    OVMDarwinVzState,
-    OVMWindowsRunEventValue,
-    OVMWindowsPrepareEventValue,
-} from "./type";
+export type { OVMWindowsInfo } from "./type";
+export { OVMDarwinAppEventValue, OVMDarwinVzState, OVMWindowsRunEventValue, OVMWindowsPrepareEventValue } from "./type";
 
 export type {
     OVMDarwinEventData,
