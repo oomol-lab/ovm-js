@@ -89,7 +89,7 @@ export class DarwinOVM extends RequestDarwin {
             windowsHide: true,
             detached: true,
             stdio: "ignore",
-            cwd: this.options.targetDir,
+            cwd: this.options.cwd,
         });
 
         ovm.unref();
