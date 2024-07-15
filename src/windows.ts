@@ -63,6 +63,7 @@ export class WindowsOVM extends RequestWindows {
         });
 
         const ovm = cp.spawn(this.options.ovmPath, [
+            "prepare",
             "-name", this.options.name,
             "-log-path", this.options.logDir,
             "-event-npipe-name", this.restfulNPipePrepareName,
@@ -102,6 +103,7 @@ export class WindowsOVM extends RequestWindows {
         });
 
         const ovm = cp.spawn(this.options.ovmPath, [
+            "run",
             "-name", this.options.name,
             "-log-path", this.options.logDir,
             "-image-dir", this.options.imageDir,
