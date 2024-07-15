@@ -116,7 +116,7 @@ export class WindowsOVM extends RequestWindows {
             windowsHide: true,
             detached: true,
             stdio: "ignore",
-            cwd: this.options.imageDir,
+            cwd: this.options.cwd,
         });
 
         ovm.unref();

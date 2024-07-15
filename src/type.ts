@@ -15,6 +15,7 @@ export interface OVMDarwinOptions {
     versions: OVMDarwinOptions["linuxPath"] & { data: string; };
     powerSaveMode: boolean;
     extendShareDir?: string,
+    cwd: string;
 }
 
 export enum OVMDarwinAppEventValue {
@@ -76,6 +77,7 @@ export interface OVMWindowsOptions {
     imageDir: string;
     logDir: string;
     versions: OVMWindowsOptions["linuxPath"] & { data: string; };
+    cwd: string;
 }
 
 export enum OVMWindowsPrepareEventValue {
