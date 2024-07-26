@@ -109,8 +109,16 @@ export class RequestWindows extends Request {
         await this.do("enable-feature", Method.POST, NEVER_TIMEOUT, undefined, this.prepareSocketPath);
     }
 
-    public async reboot(): Promise<void> {
-        await this.do("reboot", Method.POST, NEVER_TIMEOUT, undefined, this.prepareSocketPath);
+    /**
+     * reboot the system
+     * @param runOnce {string} - is the command to run after the next system startup
+     * @param later {boolean} - is whether to reboot later
+     */
+    public async reboot(runOnce: string, later: boolean): Promise<void> {
+        await this.do("reboot", Method.POST, NEVER_TIMEOUT, {
+            runOnce,
+            later,
+        }, this.prepareSocketPath);
     }
 
     public async updateWSL(): Promise<void> {
