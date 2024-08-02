@@ -10,5 +10,6 @@ module.exports = {
         "out",
         ".github",
         "*.yml",
+        "scripts",
     ],
 };

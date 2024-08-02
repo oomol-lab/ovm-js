@@ -4,6 +4,7 @@ import { Remitter } from "remitter";
 import type { OVMWindowsEventData, OVMWindowsOptions } from "./type";
 import { Restful } from "./event_restful";
 import { RequestWindows } from "./request";
+import { resource } from "./utils";
 
 export class WindowsOVM extends RequestWindows {
     public readonly events : EventReceiver<OVMWindowsEventData>;
@@ -62,7 +63,7 @@ export class WindowsOVM extends RequestWindows {
             });
         });
 
-        const ovm = cp.spawn(this.options.ovmPath, [
+        const ovm = cp.spawn(this.options.ovmPath || resource("ovm"), [
             "prepare",
             "-name", this.options.name,
             "-log-path", this.options.logDir,
@@ -102,12 +103,12 @@ export class WindowsOVM extends RequestWindows {
             });
         });
 
-        const ovm = cp.spawn(this.options.ovmPath, [
+        const ovm = cp.spawn(this.options.ovmPath || resource("ovm"), [
             "run",
             "-name", this.options.name,
             "-log-path", this.options.logDir,
             "-image-dir", this.options.imageDir,
-            "-rootfs-path", this.options.linuxPath.rootfs,
+            "-rootfs-path", this.options.linuxPath?.rootfs || resource("rootfs"),
             "-versions", versions,
             "-event-npipe-name", this.restfulNPipeRunName,
             "-bind-pid", String(process.pid),
