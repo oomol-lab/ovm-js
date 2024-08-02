@@ -47,7 +47,8 @@
   "license": "MIT",
   "files": [
     "out",
-    "src"
+    "src",
+    "scripts"
   ],
   "devDependencies": {
     "@oomol-lab/eslint-config-basic": "^0.0.1",
