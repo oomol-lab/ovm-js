@@ -10,6 +10,16 @@
     "module": "out/index.mjs",
     "types": "out/index.d.ts"
   },
+  "ovm": {
+    "darwin": {
+      "core": "v1.0.1",
+      "ovm": "v2.0.0-RC3"
+    },
+    "win32": {
+      "core": "v1.0.0-RC2",
+      "ovm": "v1.0.0-RC2"
+    }
+  },
   "exports": {
     ".": {
       "import": {
@@ -25,7 +35,8 @@
   "scripts": {
     "build": "tsup-node",
     "lint": "eslint .",
-    "ts-check": "tsc --noEmit"
+    "ts-check": "tsc --noEmit",
+    "postinstall": "node ./scripts/postinstall.mjs"
   },
   "keywords": [
     "oomol",
@@ -43,6 +54,7 @@
     "@oomol-lab/eslint-config-ts": "^0.0.2",
     "@oomol-lab/tsconfig": "^0.0.1",
     "@types/node": "^20.6.5",
+    "got": "^14.4.2",
     "tsup": "^7.2.0",
     "typescript": "^5.2.2"
   },

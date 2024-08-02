@@ -2,17 +2,17 @@ export interface OVMDarwinOptions {
     name: string;
     cpu: number;
     memory: number;
-    ovmPath: string;
-    linuxPath: {
-        initrd: string;
-        kernel: string;
-        rootfs: string;
+    ovmPath?: string;
+    linuxPath?: {
+        initrd?: string;
+        kernel?: string;
+        rootfs?: string;
     };
     targetDir: string;
     socketDir: string;
     logDir: string;
     sshKeyDir: string;
-    versions: OVMDarwinOptions["linuxPath"] & { data: string; };
+    versions: Required<OVMDarwinOptions["linuxPath"]> & { data: string; };
     powerSaveMode: boolean;
     extendShareDir?: string,
     cwd: string;
@@ -70,13 +70,13 @@ export interface OVMWindowsInfo {
 
 export interface OVMWindowsOptions {
     name: string;
-    ovmPath: string;
-    linuxPath: {
-        rootfs: string;
+    ovmPath?: string;
+    linuxPath?: {
+        rootfs?: string;
     };
     imageDir: string;
     logDir: string;
-    versions: OVMWindowsOptions["linuxPath"] & { data: string; };
+    versions: Required<OVMWindowsOptions["linuxPath"]> & { data: string; };
     cwd: string;
 }
 

@@ -1,4 +1,7 @@
 {
   "extends": "@oomol-lab/tsconfig/tsconfig.node.json",
+  "compilerOptions": {
+    "module": "ESNext",
+  },
   "include": ["src/**/**.ts", "**.ts", "**.js", "**.mjs", "**.json"],
 }

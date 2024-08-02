@@ -7,6 +7,7 @@ import { Restful } from "./event_restful";
 import { RequestDarwin } from "./request";
 import path from "node:path";
 import { tmpdir } from "node:os";
+import { resource } from "./utils";
 
 export class DarwinOVM extends RequestDarwin {
     public readonly events : EventReceiver<OVMDarwinEventData>;
@@ -68,16 +69,16 @@ export class DarwinOVM extends RequestDarwin {
             });
         });
 
-        const ovm = cp.spawn(this.options.ovmPath, [
+        const ovm = cp.spawn(this.options.ovmPath || resource("ovm"), [
             "-name", this.options.name,
             "-log-path", this.options.logDir,
             "-socket-path", this.options.socketDir,
             "-ssh-key-path", this.options.sshKeyDir,
             "-cpus", String(this.options.cpu),
             "-memory", String(this.options.memory),
-            "-kernel-path", this.options.linuxPath.kernel,
-            "-initrd-path", this.options.linuxPath.initrd,
-            "-rootfs-path", this.options.linuxPath.rootfs,
+            "-kernel-path", this.options.linuxPath?.kernel || resource("kernel"),
+            "-initrd-path", this.options.linuxPath?.initrd || resource("initrd"),
+            "-rootfs-path", this.options.linuxPath?.rootfs || resource("rootfs"),
             "-target-path", this.options.targetDir,
             "-versions", versions,
             "-event-socket-path", this.eventSocketPath,
