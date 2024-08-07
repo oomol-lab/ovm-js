@@ -111,7 +111,7 @@ export class WindowsOVM extends RequestWindows {
             "-rootfs-path", resource("rootfs", this.options.resource),
             "-versions", versions,
             "-event-npipe-name", this.restfulNPipeRunName,
-            "-bind-pid", String(process.pid),
+            "-bind-pid", String(this.options.bindPID || process.pid),
         ], {
             timeout: 0,
             windowsHide: true,

@@ -82,7 +82,7 @@ export class DarwinOVM extends RequestDarwin {
             "-target-path", this.options.targetDir,
             "-versions", versions,
             "-event-socket-path", this.eventSocketPath,
-            "-bind-pid", String(process.pid),
+            "-bind-pid", String(this.options.bindPID || process.pid),
             `-power-save-mode=${String(this.options.powerSaveMode)}`,
             `-extend-share-dir=${this.options.extendShareDir || ""}`,
         ], {
