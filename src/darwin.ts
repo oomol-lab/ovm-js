@@ -69,16 +69,16 @@ export class DarwinOVM extends RequestDarwin {
             });
         });
 
-        const ovm = cp.spawn(this.options.ovmPath || resource("ovm"), [
+        const ovm = cp.spawn(resource("ovm", this.options.resource), [
             "-name", this.options.name,
             "-log-path", this.options.logDir,
             "-socket-path", this.options.socketDir,
             "-ssh-key-path", this.options.sshKeyDir,
             "-cpus", String(this.options.cpu),
             "-memory", String(this.options.memory),
-            "-kernel-path", this.options.linuxPath?.kernel || resource("kernel"),
-            "-initrd-path", this.options.linuxPath?.initrd || resource("initrd"),
-            "-rootfs-path", this.options.linuxPath?.rootfs || resource("rootfs"),
+            "-kernel-path", resource("kernel", this.options.resource),
+            "-initrd-path", resource("initrd", this.options.resource),
+            "-rootfs-path", resource("rootfs", this.options.resource),
             "-target-path", this.options.targetDir,
             "-versions", versions,
             "-event-socket-path", this.eventSocketPath,

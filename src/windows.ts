@@ -63,7 +63,7 @@ export class WindowsOVM extends RequestWindows {
             });
         });
 
-        const ovm = cp.spawn(this.options.ovmPath || resource("ovm"), [
+        const ovm = cp.spawn(resource("ovm", this.options.resource), [
             "prepare",
             "-name", this.options.name,
             "-log-path", this.options.logDir,
@@ -103,12 +103,12 @@ export class WindowsOVM extends RequestWindows {
             });
         });
 
-        const ovm = cp.spawn(this.options.ovmPath || resource("ovm"), [
+        const ovm = cp.spawn(resource("ovm", this.options.resource), [
             "run",
             "-name", this.options.name,
             "-log-path", this.options.logDir,
             "-image-dir", this.options.imageDir,
-            "-rootfs-path", this.options.linuxPath?.rootfs || resource("rootfs"),
+            "-rootfs-path", resource("rootfs", this.options.resource),
             "-versions", versions,
             "-event-npipe-name", this.restfulNPipeRunName,
             "-bind-pid", String(process.pid),
