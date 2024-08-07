@@ -18,6 +18,7 @@ export interface OVMDarwinOptions {
         rootfs: string;
         data: string;
     };
+    bindPID?: number | string;
     powerSaveMode: boolean;
     extendShareDir?: string,
     cwd: string;
@@ -85,6 +86,7 @@ export interface OVMWindowsOptions {
         rootfs: string;
         data: string;
     };
+    bindPID?: number | string;
     cwd: string;
 }
 
