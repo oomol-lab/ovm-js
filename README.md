@@ -32,6 +32,7 @@ function async main() {
         sshKeyDir: "/example/ssh",
         targetDir: "/example/target",
         linuxPath: {
+            ovm: "/example/ovm",
             initrd: "/example/initrd",
             kernel: "/example/bzImage", // If it is an arm64 system, then it is `Image`.
             rootfs: "/example/rootfs.erofs",
@@ -42,7 +43,6 @@ function async main() {
             rootfs: "1.0.0",
             dataImg: "1.0.0",
         },
-        ovmPath: "/example/ovm",
     });
 
     ovm.on("status", (datum) => {
@@ -117,19 +117,17 @@ Store the SSH key pairs required to connect to the virtual machine.
 
 In order to address the issues that may occur when some files are damaged or other malfunctions happen, the program will first copy the files from the `linuxPath` to this directory.
 
-#### linuxPath
+#### resource
 
 The `initrd`, `kernel`, and `rootfs` can be obtained from the [ovm-core] project.
+
+The directory where the [ovm] program is located.
 
 Regarding the `kernel` field, if the system is Mac ARM64 (M series), the kernel file needs to be uncompressed (not **bzImage**). For more information on this, please refer to: [kernel arm64 booting]
 
 #### versions
 
 It is used to manage whether a file should be overwritten. For example, when upgrading `initrd`, it is necessary to overwrite the original `initrd` to ensure the upgrade takes effect.
-
-#### ovmPath
-
-The directory where the [ovm] program is located.
 
 #### powerSaveMode
 
