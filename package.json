@@ -13,7 +13,7 @@
   "ovm": {
     "darwin": {
       "core": "v1.0.1",
-      "ovm": "v2.0.0-RC3"
+      "ovm": "v2.0.0-RC4"
     },
     "win32": {
       "core": "v1.0.0-RC2",
