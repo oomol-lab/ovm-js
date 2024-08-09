@@ -39,7 +39,13 @@ export interface OVMDarwinEventData {
 }
 
 export interface OVMDarwinInfo {
-    podmanSocketPath: string;
+    podmanSocketPath: string,
+    sshPort: number,
+    sshUser: string,
+    sshPublicKeyPath: string,
+    sshPrivateKeyPath: string,
+    sshPublicKey: string,
+    sshPrivateKey: string,
 }
 
 /**
