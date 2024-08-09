@@ -9,8 +9,8 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
 const packageJSON = JSON.parse(fs.readFileSync(join(__dirname, "..", "package.json"), "utf-8"));
-const coreVersion = packageJSON.ovm[process.platform].core;
-const ovmVersion = packageJSON.ovm[process.platform].ovm;
+const coreVersion = packageJSON.ovm[process.platform]?.core;
+const ovmVersion = packageJSON.ovm[process.platform]?.ovm;
 
 const binName = process.platform === "win32" ? "ovm.exe" : "ovm";
 
