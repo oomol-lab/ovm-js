@@ -1,7 +1,7 @@
 name: Rlease
-on: 
+on:
   push:
-    tags: 
+    tags:
       - "v*.*.*"
 
 jobs:
@@ -24,7 +24,7 @@ jobs:
 
       - name: Build
         run: |
-          pnpm i
+          pnpm install --ignore-scripts
           pnpm build
 
       - name: Pack

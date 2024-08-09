@@ -5,11 +5,12 @@ import { join, dirname } from "node:path";
 import { pipeline } from "node:stream/promises";
 import { fileURLToPath } from "node:url";
 
-const coreVersion = process.env[`npm_package_ovm_${process.platform}_core`];
-const ovmVersion = process.env[`npm_package_ovm_${process.platform}_ovm`];
-
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
+
+const packageJSON = JSON.parse(fs.readFileSync(join(__dirname, "..", "package.json"), "utf-8"));
+const coreVersion = packageJSON.ovm[process.platform].core;
+const ovmVersion = packageJSON.ovm[process.platform].ovm;
 
 const binName = process.platform === "win32" ? "ovm.exe" : "ovm";
 
@@ -28,7 +29,7 @@ switch (process.platform) {
     case "darwin": {
         const coreURL = `https://github.com/oomol-lab/ovm-core/releases/download/${coreVersion}`;
         const ovmURL = `https://github.com/oomol-lab/ovm/releases/download/${ovmVersion}`;
-    
+
         assets.x64.core.push(
             `${coreURL}/applehv-rootfs-amd64.rootfs.erofs#rootfs.erofs`,
             `${coreURL}/initrd-amd64.initrd.gz#initrd.gz`,
