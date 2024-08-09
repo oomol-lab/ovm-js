@@ -23,7 +23,7 @@ jobs:
           version: 8
 
       - name: Intall
-        run: pnpm install --ignore-scripts
+        run: pnpm install
 
       - name: Lint
         run: pnpm run lint
