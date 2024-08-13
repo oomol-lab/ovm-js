@@ -4,6 +4,7 @@ import got from "got";
 import { join, dirname } from "node:path";
 import { pipeline } from "node:stream/promises";
 import { fileURLToPath } from "node:url";
+import { homedir } from "node:os";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -27,8 +28,8 @@ const assets = {
 
 switch (process.platform) {
     case "darwin": {
-        const coreURL = `https://github.com/oomol-lab/ovm-core/releases/download/${coreVersion}`;
-        const ovmURL = `https://github.com/oomol-lab/ovm/releases/download/${ovmVersion}`;
+        const coreURL = `http://github.com/oomol-lab/ovm-core/releases/download/${coreVersion}`;
+        const ovmURL = `http://github.com/oomol-lab/ovm/releases/download/${ovmVersion}`;
 
         assets.x64.core.push(
             `${coreURL}/applehv-rootfs-amd64.rootfs.erofs#rootfs.erofs`,
@@ -47,8 +48,8 @@ switch (process.platform) {
         break;
     }
     case "win32": {
-        const coreURL = `https://github.com/oomol-lab/ovm-builder/releases/download/${coreVersion}`;
-        const ovmURL = `https://github.com/oomol/ovm-win/releases/download/${ovmVersion}`;
+        const coreURL = `http://github.com/oomol-lab/ovm-builder/releases/download/${coreVersion}`;
+        const ovmURL = `http://github.com/oomol/ovm-win/releases/download/${ovmVersion}`;
 
         assets.x64.core.push(`${coreURL}/rootfs-amd64.zst#rootfs.zst`);
         assets.x64.ovm = `${ovmURL}/ovm-amd64.exe#${binName}`;
@@ -66,23 +67,30 @@ switch (process.platform) {
     }
 }
 
+const cacheDir = join(homedir(), ".cache", "ovm", packageJSON.version);
+await fsP.mkdir(cacheDir, { recursive: true });
+
 const vmResourcesPath = join(__dirname, "..", "vm-resources");
 await fsP.mkdir(vmResourcesPath, { recursive: true });
 
 const tasks = [...assets[process.arch].core, assets[process.arch].ovm];
 
-await Promise.all(
-    tasks.map(t => {
-        const [url, filename] = t.split("#");
-        const outputPath = join(vmResourcesPath, filename);
-        console.log("[OVM]: Downloading", url, "to", outputPath);
-        return pipeline(got.stream(url), fs.createWriteStream(outputPath)).then(
-            () => {
-                console.log(`[OVM]: Downloaded ${outputPath}`);
-            }
-        );
-    })
-);
+for (const t of tasks) {
+    const [url, filename] = t.split("#");
+    const outputPathWithCache = join(cacheDir, filename);
+    const outputPath = join(vmResourcesPath, filename);
+
+    if (fs.existsSync(outputPathWithCache)) {
+        console.log(`[OVM]: Found ${filename} in cache`);
+        await fsP.copyFile(outputPathWithCache, outputPath);
+        continue;
+    }
+
+    console.log("[OVM]: Downloading", url, "to", outputPath);
+    await pipeline(got.stream(url), fs.createWriteStream(outputPathWithCache))
+    await fsP.copyFile(outputPathWithCache, outputPath);
+    console.log(`[OVM]: Downloaded ${outputPath}`);
+}
 
 const ovmStat = await fsP.stat(join(vmResourcesPath, binName));
 if (!(ovmStat.mode & fs.constants.X_OK)) {
