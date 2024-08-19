@@ -4,7 +4,7 @@ import { Remitter } from "remitter";
 import type { OVMWindowsEventData, OVMWindowsOptions } from "./type";
 import { Restful } from "./event_restful";
 import { RequestWindows } from "./request";
-import { resource } from "./utils";
+import { enableDebug, resource } from "./utils";
 
 export class WindowsOVM extends RequestWindows {
     public readonly events : EventReceiver<OVMWindowsEventData>;
@@ -63,13 +63,21 @@ export class WindowsOVM extends RequestWindows {
             });
         });
 
-        const ovm = cp.spawn(resource("ovm", this.options.resource), [
+        const ovmBin = resource("ovm", this.options.resource);
+        const ovmArgs = [
             "prepare",
             "-name", this.options.name,
             "-log-path", this.options.logDir,
             "-event-npipe-name", this.restfulNPipePrepareName,
             "-bind-pid", String(process.pid),
-        ], {
+        ];
+
+        if (enableDebug()) {
+            console.log(`[OVM] executing: ${ovmBin} ${ovmArgs.join(" ")}`);
+            console.log(`[OVM] cwd: ${this.options.cwd}`);
+        }
+
+        const ovm = cp.spawn(ovmBin, ovmArgs, {
             timeout: 0,
             windowsHide: true,
             detached: true,
