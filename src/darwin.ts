@@ -7,7 +7,7 @@ import { Restful } from "./event_restful";
 import { RequestDarwin } from "./request";
 import path from "node:path";
 import { tmpdir } from "node:os";
-import { resource } from "./utils";
+import { enableDebug, resource } from "./utils";
 
 export class DarwinOVM extends RequestDarwin {
     public readonly events : EventReceiver<OVMDarwinEventData>;
@@ -69,7 +69,8 @@ export class DarwinOVM extends RequestDarwin {
             });
         });
 
-        const ovm = cp.spawn(resource("ovm", this.options.resource), [
+        const ovmBin = resource("ovm", this.options.resource);
+        const ovmArgs = [
             "-name", this.options.name,
             "-log-path", this.options.logDir,
             "-socket-path", this.options.socketDir,
@@ -85,7 +86,14 @@ export class DarwinOVM extends RequestDarwin {
             "-bind-pid", String(this.options.bindPID || process.pid),
             `-power-save-mode=${String(this.options.powerSaveMode)}`,
             `-extend-share-dir=${this.options.extendShareDir || ""}`,
-        ], {
+        ];
+
+        if (enableDebug()) {
+            console.log(`[OVM] executing: ${ovmBin} ${ovmArgs.join(" ")}`);
+            console.log(`[OVM] cwd: ${this.options.cwd}`);
+        }
+
+        const ovm = cp.spawn(ovmBin, ovmArgs, {
             timeout: 0,
             windowsHide: true,
             detached: true,

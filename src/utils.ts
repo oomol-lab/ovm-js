@@ -31,3 +31,7 @@ export const resource = (name: "rootfs" | "initrd" | "kernel" | "ovm", resource:
         }
     }
 };
+
+export const enableDebug = (): boolean => {
+    return !!(process.env.DEBUG?.includes("ovm") || process.env.OVM_DEBUG);
+};
