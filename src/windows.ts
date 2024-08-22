@@ -111,7 +111,8 @@ export class WindowsOVM extends RequestWindows {
             });
         });
 
-        const ovm = cp.spawn(resource("ovm", this.options.resource), [
+        const ovmBin = resource("ovm", this.options.resource);
+        const ovmArgs = [
             "run",
             "-name", this.options.name,
             "-log-path", this.options.logDir,
@@ -120,7 +121,14 @@ export class WindowsOVM extends RequestWindows {
             "-versions", versions,
             "-event-npipe-name", this.restfulNPipeRunName,
             "-bind-pid", String(this.options.bindPID || process.pid),
-        ], {
+        ];
+
+        if (enableDebug()) {
+            console.log(`[OVM] executing: ${ovmBin} ${ovmArgs.join(" ")}`);
+            console.log(`[OVM] cwd: ${this.options.cwd}`);
+        }
+
+        const ovm = cp.spawn(ovmBin, ovmArgs, {
             timeout: 0,
             windowsHide: true,
             detached: true,
