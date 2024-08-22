@@ -61,5 +61,6 @@
   },
   "dependencies": {
     "remitter": "^0.4.1"
-  }
+  },
+  "packageManager": "pnpm@9.6.0"
 }
