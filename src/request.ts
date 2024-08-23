@@ -1,6 +1,8 @@
 import path from "node:path";
 import http from "node:http";
+import { Readable } from "node:stream";
 import type { OVMDarwinInfo, OVMDarwinState, OVMWindowsInfo } from "./type";
+import { createEventSource } from "eventsource-client";
 
 enum Method {
     GET = "GET",
@@ -10,6 +12,9 @@ enum Method {
 
 const DEFAULT_TIMEOUT = 200;
 const NEVER_TIMEOUT = 0;
+
+// @ts-ignore
+const fetch = (...args) => import("node-fetch").then(({ default: fetch }) => fetch(...args));
 
 abstract class Request {
     public abstract info(): Promise<OVMDarwinInfo | OVMWindowsInfo>;
@@ -90,6 +95,50 @@ export class RequestDarwin extends Request {
         await this.do("power-save-mode", Method.PUT, DEFAULT_TIMEOUT, {
             enable,
         });
+    }
+
+    public exec(command: string): Readable {
+        const s = new Readable();
+        s._read = function _read() {
+            // do nothing
+        };
+
+        const agent = new http.Agent({
+            // @ts-expect-error
+            // https://github.com/node-fetch/node-fetch/issues/336#issuecomment-689623290
+            socketPath: this.socketPath,
+        });
+
+        const es = createEventSource({
+            url: "http://ovm/exec",
+            fetch: (url, init) => {
+                return fetch(url, {
+                    ...init,
+                    agent,
+                });
+            },
+            method: "POST",
+            body: JSON.stringify({
+                command,
+            }),
+            onDisconnect: () => {
+                es.close();
+                s.push(null);
+            },
+            onMessage: ({ event, data }) => {
+                if (event === "error") {
+                    s.destroy(new Error(data));
+                } else if (event === "out") {
+                    s.push(data);
+                }
+            },
+        });
+
+        s.on("close", () => {
+            es.close();
+        });
+
+        return s;
     }
 }
 
