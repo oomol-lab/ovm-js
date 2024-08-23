@@ -60,6 +60,8 @@
     "typescript": "^5.2.2"
   },
   "dependencies": {
+    "eventsource-client": "^1.1.2",
+    "node-fetch": "^3.3.2",
     "remitter": "^0.4.1"
   },
   "packageManager": "pnpm@9.6.0"
