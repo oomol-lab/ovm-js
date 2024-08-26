@@ -3,6 +3,7 @@ import http from "node:http";
 import { Readable } from "node:stream";
 import type { OVMDarwinInfo, OVMDarwinState, OVMWindowsInfo } from "./type";
 import { createEventSource } from "eventsource-client";
+import fetch from "node-fetch";
 
 enum Method {
     GET = "GET",
@@ -12,9 +13,6 @@ enum Method {
 
 const DEFAULT_TIMEOUT = 200;
 const NEVER_TIMEOUT = 0;
-
-// @ts-ignore
-const fetch = (...args) => import("node-fetch").then(({ default: fetch }) => fetch(...args));
 
 abstract class Request {
     public abstract info(): Promise<OVMDarwinInfo | OVMWindowsInfo>;
