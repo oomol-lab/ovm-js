@@ -68,34 +68,6 @@ abstract class Request {
     public async stop(): Promise<void> {
         await this.do("stop", Method.POST);
     }
-}
-
-export class RequestDarwin extends Request {
-    public constructor(socketDir: string, name: string) {
-        super(path.join(socketDir, `${name}-restful.sock`));
-    }
-
-    public async info(): Promise<OVMDarwinInfo> {
-        return JSON.parse(await this.do("info", Method.GET)) as Promise<OVMDarwinInfo>;
-    }
-
-    public async state(): Promise<OVMDarwinState> {
-        return JSON.parse(await this.do("state", Method.GET)) as Promise<OVMDarwinState>;
-    }
-
-    public async pause(): Promise<void> {
-        await this.do("pause", Method.POST);
-    }
-
-    public async resume(): Promise<void> {
-        await this.do("resume", Method.POST);
-    }
-
-    public async powerSaveMode(enable: boolean): Promise<void> {
-        await this.do("power-save-mode", Method.PUT, DEFAULT_TIMEOUT, {
-            enable,
-        });
-    }
 
     public exec(command: string): Readable {
         const s = new Readable();
@@ -139,6 +111,34 @@ export class RequestDarwin extends Request {
         });
 
         return s;
+    }
+}
+
+export class RequestDarwin extends Request {
+    public constructor(socketDir: string, name: string) {
+        super(path.join(socketDir, `${name}-restful.sock`));
+    }
+
+    public async info(): Promise<OVMDarwinInfo> {
+        return JSON.parse(await this.do("info", Method.GET)) as Promise<OVMDarwinInfo>;
+    }
+
+    public async state(): Promise<OVMDarwinState> {
+        return JSON.parse(await this.do("state", Method.GET)) as Promise<OVMDarwinState>;
+    }
+
+    public async pause(): Promise<void> {
+        await this.do("pause", Method.POST);
+    }
+
+    public async resume(): Promise<void> {
+        await this.do("resume", Method.POST);
+    }
+
+    public async powerSaveMode(enable: boolean): Promise<void> {
+        await this.do("power-save-mode", Method.PUT, DEFAULT_TIMEOUT, {
+            enable,
+        });
     }
 }
 
