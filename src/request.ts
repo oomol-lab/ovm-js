@@ -48,7 +48,7 @@ abstract class Request {
                 });
             })
                 .once("error", (error) => {
-                    reject(error);
+                    reject(new Error(`Request Failed: ${p}. Error: ${error.message}`));
                 });
 
             if (body && method !== "GET") {
