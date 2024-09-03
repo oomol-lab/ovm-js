@@ -27,7 +27,9 @@ export class Restful {
     }
 
     public start(socketPath: string): void {
-        this.server.listen(socketPath);
+        this.server.listen(socketPath).once("error", (error) => {
+            console.trace(`Failed to listen RESTful server: ${error.message}`);
+        });
     }
 
     public stop(): void {

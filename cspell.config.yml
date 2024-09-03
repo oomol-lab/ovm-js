@@ -15,6 +15,7 @@ words:
   - chrony
   - npipe
   - applehv
+  - RESTful
 dictionaries:
   - companies
   - softwareTerms
