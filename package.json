@@ -1,6 +1,6 @@
 {
   "name": "@oomol-lab/ovm",
-  "version": "2.0.0-rc.21",
+  "version": "2.0.0-rc.22",
   "description": "oomol virtual machine",
   "main": "src/index.ts",
   "module": "src/index.ts",
@@ -16,7 +16,7 @@
       "ovm": "v2.0.0-RC5"
     },
     "win32": {
-      "core": "v1.0.0-RC2",
+      "core": "v1.0.0-RC4",
       "ovm": "v1.0.0-RC7"
     }
   },
