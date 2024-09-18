@@ -1,6 +1,6 @@
 {
   "name": "@oomol-lab/ovm",
-  "version": "2.0.0-rc.23",
+  "version": "2.0.0-rc.24",
   "description": "oomol virtual machine",
   "main": "src/index.ts",
   "module": "src/index.ts",
@@ -12,36 +12,36 @@
   },
   "ovm": {
     "darwin-core": {
-      "version": "v1.0.2",
-      "endpoint": "https://github.com/oomol-lab/ovm-core/releases/download",
+      "version": "v1.0.3",
+      "endpoint": "http://static.oomol.com/ovm-resources/ovm-core",
       "info": {
         "arm64": [
-          "applehv-rootfs-arm64.rootfs.erofs#rootfs.erofs#a5db3e46f97a77db33f96231751dd8e3aa1c1fe28d795e180990d7c9e8f76d9c",
-          "initrd-arm64.initrd.gz#initrd.gz#53665bd2e1f1a5700f0874137429a4c3559ca964fc1c50767076acafdb32d2b4",
-          "kernel-arm64.Image#Image#c7abf92b83e143dedc173c10be9e9886e367a1bf9d4a304a2428d38cf6ea6831"
+          "applehv-rootfs-arm64.rootfs.erofs#rootfs.erofs#02252c59c1406d30f3c8364e603780228eba1414f48296410411fdbd818bc343",
+          "initrd-arm64.initrd.gz#initrd.gz#a3f50de2fe7bcda2005e9a731cec11eafa68ef21ec1fdfbad08741e07acf636d",
+          "kernel-arm64.Image#Image#5793adccab3b527887b530590abfa532d53590b496aee8fec5113d1fc20d4927"
         ],
         "x64": [
-          "applehv-rootfs-amd64.rootfs.erofs#rootfs.erofs#7c11055dd5cff2dc32409f9f390c64aae57e8904c845a4f56746714d659b794a",
-          "initrd-amd64.initrd.gz#initrd.gz#b2dadf218d47408ea32fd866bd7135404c6461e5cd32ea933eaa3cfa84f771d7",
-          "kernel-amd64.bzImage#bzImage#aabb7223443146d517327576d53ad3cf87ea8fd04957b08673067e384a1923da"
+          "applehv-rootfs-amd64.rootfs.erofs#rootfs.erofs#7436bb01151154bd967af286435e65194da66570760cdc50e26a3702ac7ff87a",
+          "initrd-amd64.initrd.gz#initrd.gz#064eaf482a0ed8b8b7071d4b85f37ff26e201ef844566cac6b6406b8724cb698",
+          "kernel-amd64.bzImage#bzImage#fba25a5e0019f25cb43cb18571eb1e4d816324716de1cd98d14defca397ca158"
         ]
       }
     },
     "darwin-ovm": {
-      "version": "v2.0.0-RC5",
-      "endpoint": "https://github.com/oomol-lab/ovm/releases/download",
+      "version": "v2.0.0-RC6",
+      "endpoint": "http://static.oomol.com/ovm-resources/ovm",
       "info": {
         "arm64": [
-          "ovm-arm64#ovm#b0d165380217a2e3a82f30943fb835c6e9c10017c4476df51044b69dfc49bd0c"
+          "ovm-arm64#ovm#46c45cfbc078ee39fb8388c504deb33c8d9eabdea3f608f6c3303af3190f9d12"
         ],
         "x64": [
-          "ovm-amd64#ovm#b3067b3ce4ee55489dd6c60cee16cb3efd1811db9f5b67ef7089cf531f73fa54"
+          "ovm-amd64#ovm#04aa3ce99a11c57f9fd1063d7c88c8d63b4b81d652a28af0a55e7316dde97a81"
         ]
       }
     },
     "win32-core": {
       "version": "v1.0.0-RC4",
-      "endpoint": "https://github.com/oomol-lab/ovm-builder/releases/download",
+      "endpoint": "http://static.oomol.com/ovm-resources/ovm-builder",
       "info": {
         "x64": [
           "rootfs-amd64.zst#rootfs.zst#0c1c8dc7f19b3593b947b948a5949f3a5a99935ef38f7bde50d671ee4d600a19"
@@ -49,11 +49,11 @@
       }
     },
     "win32-ovm": {
-      "version": "v1.0.0-RC8",
-      "endpoint": "https://github.com/oomol/ovm-win/releases/download",
+      "version": "v1.0.0-RC9",
+      "endpoint": "http://static.oomol.com/ovm-resources/ovm-win",
       "info": {
         "x64": [
-          "ovm-amd64.exe#ovm.exe#ca5af2cfde6c1546088baaedb3557ba13e97e2dbcfe108b1ca0f3d84f038b499"
+          "ovm-amd64.exe#ovm.exe#dd43cfb1cd66db01b94db5ea49442a5821de1580bf7ef11b1319cb124c500632"
         ]
       }
     }
