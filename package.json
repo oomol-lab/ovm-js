@@ -1,6 +1,6 @@
 {
   "name": "@oomol-lab/ovm",
-  "version": "2.0.0-rc.24",
+  "version": "2.0.0-rc.25",
   "description": "oomol virtual machine",
   "main": "src/index.ts",
   "module": "src/index.ts",
@@ -28,14 +28,14 @@
       }
     },
     "darwin-ovm": {
-      "version": "v2.0.0-RC6",
+      "version": "v2.0.0-RC7",
       "endpoint": "http://static.oomol.com/ovm-resources/ovm",
       "info": {
         "arm64": [
-          "ovm-arm64#ovm#46c45cfbc078ee39fb8388c504deb33c8d9eabdea3f608f6c3303af3190f9d12"
+          "ovm-arm64#ovm#f56a5b3b4cf83ac81c5fe562fcb29f19e708916a137794bdd0869912570ea199"
         ],
         "x64": [
-          "ovm-amd64#ovm#04aa3ce99a11c57f9fd1063d7c88c8d63b4b81d652a28af0a55e7316dde97a81"
+          "ovm-amd64#ovm#974504cadefdb9112c3207faeb9fd40a5f14c7eabecaa1da4787e3bcd539f354"
         ]
       }
     },
