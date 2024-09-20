@@ -1,6 +1,6 @@
 {
   "name": "@oomol-lab/ovm",
-  "version": "2.0.0-rc.26",
+  "version": "2.0.0-rc.27",
   "description": "oomol virtual machine",
   "main": "src/index.ts",
   "module": "src/index.ts",
@@ -40,11 +40,11 @@
       }
     },
     "win32-core": {
-      "version": "v1.0.0-RC4",
+      "version": "v1.0.0-RC5",
       "endpoint": "http://static.oomol.com/ovm-resources/ovm-builder",
       "info": {
         "x64": [
-          "rootfs-amd64.zst#rootfs.zst#0c1c8dc7f19b3593b947b948a5949f3a5a99935ef38f7bde50d671ee4d600a19"
+          "rootfs-amd64.zst#rootfs.zst#b9ea731859311b5f17ceb5ac29c3bf7f68cd40e4cd6eedcc943df018585a77f2"
         ]
       }
     },
