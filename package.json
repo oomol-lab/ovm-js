@@ -1,6 +1,6 @@
 {
   "name": "@oomol-lab/ovm",
-  "version": "2.0.0-rc.27",
+  "version": "2.0.0-rc.28",
   "description": "oomol virtual machine",
   "main": "src/index.ts",
   "module": "src/index.ts",
@@ -49,11 +49,11 @@
       }
     },
     "win32-ovm": {
-      "version": "v1.0.0-RC10",
+      "version": "v1.0.0-RC11",
       "endpoint": "http://static.oomol.com/ovm-resources/ovm-win",
       "info": {
         "x64": [
-          "ovm-amd64.exe#ovm.exe#b43e31e4dddf389be08841c5cc4708a9c7ece8e4bf8796f4a8c579d0e9a025e6"
+          "ovm-amd64.exe#ovm.exe#1bfb9f817537bde97f2d305286884193cd1623153218a68a6a3fcc65d6333053"
         ]
       }
     }
