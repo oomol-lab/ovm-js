@@ -1,6 +1,6 @@
 {
   "name": "@oomol-lab/ovm",
-  "version": "2.0.0-rc.29",
+  "version": "2.0.0-rc.30",
   "description": "oomol virtual machine",
   "main": "src/index.ts",
   "module": "src/index.ts",
@@ -40,20 +40,20 @@
       }
     },
     "win32-core": {
-      "version": "v1.0.0-RC6",
+      "version": "v1.0.0-RC7",
       "endpoint": "http://static.oomol.com/ovm-resources/ovm-builder",
       "info": {
         "x64": [
-          "rootfs-amd64.zst#rootfs.zst#779c44e556c8021c6f7f76b730516fcb8398db5c39a67c339f0ab02ddcececc0"
+          "rootfs-amd64.zst#rootfs.zst#a4e44bc74e7b17bf9414dec49d094b33de652a874684b1a8a79be208cfc698b1"
         ]
       }
     },
     "win32-ovm": {
-      "version": "v1.0.0-RC11",
+      "version": "v1.0.0-RC12",
       "endpoint": "http://static.oomol.com/ovm-resources/ovm-win",
       "info": {
         "x64": [
-          "ovm-amd64.exe#ovm.exe#1bfb9f817537bde97f2d305286884193cd1623153218a68a6a3fcc65d6333053"
+          "ovm-amd64.exe#ovm.exe#8067cc8d7b1b44042c3ad707dabb2b270864f890315a118d172a16bbe8fe5bcb"
         ]
       }
     }
