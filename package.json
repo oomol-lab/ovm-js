@@ -1,6 +1,6 @@
 {
   "name": "@oomol-lab/ovm",
-  "version": "2.0.0-rc.28",
+  "version": "2.0.0-rc.29",
   "description": "oomol virtual machine",
   "main": "src/index.ts",
   "module": "src/index.ts",
@@ -28,23 +28,23 @@
       }
     },
     "darwin-ovm": {
-      "version": "v2.0.0-RC7",
+      "version": "v2.0.0-RC8",
       "endpoint": "http://static.oomol.com/ovm-resources/ovm",
       "info": {
         "arm64": [
-          "ovm-arm64#ovm#f56a5b3b4cf83ac81c5fe562fcb29f19e708916a137794bdd0869912570ea199"
+          "ovm-arm64#ovm#d8b35dd56635ff383a5df4a0ebcb243c19d1ad50685d85a56268575fa627c972"
         ],
         "x64": [
-          "ovm-amd64#ovm#974504cadefdb9112c3207faeb9fd40a5f14c7eabecaa1da4787e3bcd539f354"
+          "ovm-amd64#ovm#7f576fe11b62a8af8e932401c4749d26b3745d46cefd65bd3091ebf010ba837c"
         ]
       }
     },
     "win32-core": {
-      "version": "v1.0.0-RC5",
+      "version": "v1.0.0-RC6",
       "endpoint": "http://static.oomol.com/ovm-resources/ovm-builder",
       "info": {
         "x64": [
-          "rootfs-amd64.zst#rootfs.zst#b9ea731859311b5f17ceb5ac29c3bf7f68cd40e4cd6eedcc943df018585a77f2"
+          "rootfs-amd64.zst#rootfs.zst#779c44e556c8021c6f7f76b730516fcb8398db5c39a67c339f0ab02ddcececc0"
         ]
       }
     },
