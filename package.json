@@ -1,6 +1,6 @@
 {
   "name": "@oomol-lab/ovm",
-  "version": "2.0.0-rc.30",
+  "version": "2.0.0-rc.31",
   "description": "oomol virtual machine",
   "main": "src/index.ts",
   "module": "src/index.ts",
@@ -12,18 +12,18 @@
   },
   "ovm": {
     "darwin-core": {
-      "version": "v1.0.3",
+      "version": "v1.0.4",
       "endpoint": "http://static.oomol.com/ovm-resources/ovm-core",
       "info": {
         "arm64": [
-          "applehv-rootfs-arm64.rootfs.erofs#rootfs.erofs#02252c59c1406d30f3c8364e603780228eba1414f48296410411fdbd818bc343",
-          "initrd-arm64.initrd.gz#initrd.gz#a3f50de2fe7bcda2005e9a731cec11eafa68ef21ec1fdfbad08741e07acf636d",
-          "kernel-arm64.Image#Image#5793adccab3b527887b530590abfa532d53590b496aee8fec5113d1fc20d4927"
+          "applehv-rootfs-arm64.rootfs.erofs#rootfs.erofs#c8c6a3587aaae8f243df0267a256256165739904c6309375d666e2b5089c7c29",
+          "initrd-arm64.initrd.gz#initrd.gz#1fb36d3133b6e41d5c45956d736e3abc4248808580f607cd97945f88f8b54cce",
+          "kernel-arm64.Image#Image#814061c3e6fa5147ac38351cb0ebb0d1a2be89ecab58f9976e9b3030c732b9cb"
         ],
         "x64": [
-          "applehv-rootfs-amd64.rootfs.erofs#rootfs.erofs#7436bb01151154bd967af286435e65194da66570760cdc50e26a3702ac7ff87a",
-          "initrd-amd64.initrd.gz#initrd.gz#064eaf482a0ed8b8b7071d4b85f37ff26e201ef844566cac6b6406b8724cb698",
-          "kernel-amd64.bzImage#bzImage#fba25a5e0019f25cb43cb18571eb1e4d816324716de1cd98d14defca397ca158"
+          "applehv-rootfs-amd64.rootfs.erofs#rootfs.erofs#bd5cc1eb1067e2d077cdd1d2747217055fcb46679e1dc577bd66eb2058ac1bae",
+          "initrd-amd64.initrd.gz#initrd.gz#3fc472d559602307442fd1562c1b7f3a3d4a8731621fc29cf6f085a1de319980",
+          "kernel-amd64.bzImage#bzImage#20e6231a1b84184b059f1d4a2d3794f82dfd36956ad8c3bf2a1198c2cddedd81"
         ]
       }
     },
