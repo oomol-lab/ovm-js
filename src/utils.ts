@@ -1,6 +1,6 @@
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
-import type { OVMDarwinOptions, OVMWindowsOptions } from "./type";
+import type { OVMDarwinArm64Options, OVMDarwinOptions, OVMWindowsOptions } from "./type";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -28,6 +28,23 @@ export const resource = (name: "rootfs" | "initrd" | "kernel" | "ovm", resource:
         case "ovm": {
             const file = process.platform === "darwin" ? "ovm" : "ovm.exe";
             return join(path, file);
+        }
+    }
+};
+
+export const resourceArm64 = (name: "ovm" | "image", resource: OVMDarwinArm64Options["resource"]): string => {
+    if (typeof resource !== "string" && resource?.[name] !== undefined) {
+        return resource[name];
+    }
+
+    const path = typeof resource === "string" ? resource : resourcesPath;
+
+    switch (name) {
+        case "ovm": {
+            return join(path, "bin", "ovm");
+        }
+        case "image": {
+            return join(path, "bootable.img.xz");
         }
     }
 };

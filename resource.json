@@ -1,0 +1,71 @@
+{
+  "darwin-x64": [
+    {
+      "name": "ovm",
+      "version": "v2.0.0-RC8",
+      "download": "https://static.oomol.com/ovm-resources/ovm/{version}/ovm-amd64",
+      "sha256": "7f576fe11b62a8af8e932401c4749d26b3745d46cefd65bd3091ebf010ba837c",
+      "out": "ovm"
+    },
+    {
+      "name": "rootfs",
+      "version": "v1.0.3",
+      "download": "https://static.oomol.com/ovm-resources/ovm-core/{version}/applehv-rootfs-amd64.rootfs.erofs",
+      "sha256": "7436bb01151154bd967af286435e65194da66570760cdc50e26a3702ac7ff87a",
+      "out": "rootfs.erofs"
+    },
+    {
+      "name": "initrd",
+      "version": "v1.0.3",
+      "download": "https://static.oomol.com/ovm-resources/ovm-core/{version}/initrd-amd64.initrd.gz",
+      "sha256": "064eaf482a0ed8b8b7071d4b85f37ff26e201ef844566cac6b6406b8724cb698",
+      "out": "initrd.gz"
+    },
+    {
+      "name": "kernel",
+      "version": "v1.0.3",
+      "download": "https://static.oomol.com/ovm-resources/ovm-core/{version}/kernel-amd64.bzImage",
+      "sha256": "fba25a5e0019f25cb43cb18571eb1e4d816324716de1cd98d14defca397ca158",
+      "out": "bzImage"
+    }
+  ],
+  "darwin-arm64": [
+    {
+      "name": "ovm",
+      "version": "v0.0.1",
+      "download": "https://static.oomol.com/ovm-resources/Bauklotze/{version}/ovm-arm64",
+      "sha256": "504e66bbeb81c1e7a0f4333085b2c6344e2a4318976af60e3038f6461226ae2c",
+      "out": "bin/ovm"
+    },
+    {
+      "name": "bootable",
+      "version": "v0.0.1",
+      "download": "https://static.oomol.com/ovm-resources/Bauklotze/{version}/bootable.img.xz",
+      "sha256": "54548babdba1224777f933213d3bed6172a751706365c80bc71583487fbe595a",
+      "out": "bootable.img.xz"
+    },
+    {
+      "name": "libexec",
+      "version": "v1.0.1",
+      "download": "https://static.oomol.com/ovm-resources/libexec/{version}/libexec-darwin-arm64.tar.gz",
+      "sha256": "149017478613586f24c40a82fee23101a422b782f58ba61b7f14f99a51899b7c",
+      "out": "libexec.tar.gz"
+    }
+  ],
+  "win32-x64": [
+    {
+      "name": "ovm",
+      "version": "v1.0.0-RC12",
+      "download": "https://static.oomol.com/ovm-resources/ovm-win/{version}/ovm-amd64.exe",
+      "sha256": "8067cc8d7b1b44042c3ad707dabb2b270864f890315a118d172a16bbe8fe5bcb",
+      "out": "ovm.exe"
+    },
+    {
+      "name": "rootfs",
+      "version": "v1.0.0-RC7",
+      "download": "https://static.oomol.com/ovm-resources/ovm-builder/{version}/rootfs-amd64.zst",
+      "sha256": "a4e44bc74e7b17bf9414dec49d094b33de652a874684b1a8a79be208cfc698b1",
+      "out": "rootfs.zst"
+    }
+  ]
+}

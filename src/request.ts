@@ -1,7 +1,13 @@
 import path from "node:path";
 import http from "node:http";
 import { Readable } from "node:stream";
-import type { OVMDarwinInfo, OVMDarwinState, OVMWindowsInfo } from "./type";
+import type {
+    OVMDarwinArm64Info,
+    OVMDarwinArm64State,
+    OVMDarwinInfo,
+    OVMDarwinState,
+    OVMWindowsInfo,
+} from "./type";
 import { createEventSource } from "eventsource-client";
 import fetch from "node-fetch";
 
@@ -15,7 +21,7 @@ const DEFAULT_TIMEOUT = 200;
 const NEVER_TIMEOUT = 0;
 
 abstract class Request {
-    public abstract info(): Promise<OVMDarwinInfo | OVMWindowsInfo>;
+    public abstract info(): Promise<OVMDarwinInfo | OVMWindowsInfo | OVMDarwinArm64Info>;
 
     protected readonly socketPath: string;
 
@@ -137,6 +143,59 @@ export class RequestDarwin extends Request {
         await this.do("power-save-mode", Method.PUT, DEFAULT_TIMEOUT, {
             enable,
         });
+    }
+}
+
+type RequestDarwinArm64RawInfoResp = {
+    GvProxy: {
+        HostSocks: [string];
+    };
+    SSH: {
+        IdentityPath: string;
+        Port: number;
+        RemoteUsername: string;
+    }
+}
+
+export class RequestDarwinArm64 extends Request {
+    public constructor(workspace: string) {
+        super(path.join(workspace, "tmp", "ovm_restapi.socks"));
+    }
+
+    public async info(): Promise<OVMDarwinArm64Info> {
+        const result = JSON.parse(await this.do("default/info", Method.GET)) as RequestDarwinArm64RawInfoResp;
+        return {
+            podmanSocketPath: result.GvProxy.HostSocks[0],
+            sshPort: result.SSH.Port,
+            sshUser: result.SSH.RemoteUsername,
+            sshPrivateKeyPath: result.SSH.IdentityPath,
+            sshPublicKeyPath: `${result.SSH.IdentityPath}.pub`,
+        };
+    }
+
+    public async state(): Promise<OVMDarwinArm64State> {
+        const result = JSON.parse(await this.do("default/vmstat", Method.GET)) as { CurrentStat: OVMDarwinArm64State["state"] };
+        return {
+            state: result.CurrentStat,
+            canStop: true,
+            canRequestStop: true,
+            canPause: false,
+            canResume: false,
+            canStart: true,
+        };
+
+    }
+
+    public pause(): Promise<void> {
+        return Promise.resolve();
+    }
+
+    public resume(): Promise<void> {
+        return Promise.resolve();
+    }
+
+    public powerSaveMode(_enable: boolean): Promise<void> {
+        return Promise.resolve();
     }
 }
 
