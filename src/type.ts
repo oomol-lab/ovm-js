@@ -70,7 +70,55 @@ export interface OVMDarwinState {
     canPause: boolean;
     canResume: boolean;
     canRequestStop: boolean;
-    CanStop: boolean;
+    canStop: boolean;
+}
+
+// ----- darwin arm64
+export interface OVMDarwinArm64Options {
+    cpu: number;
+    memory: number;
+    resource?: {
+        ovm?: string;
+        image?: string;
+    } | string;
+    workspace: string;
+    versions: {
+        image: string;
+        data: string;
+    };
+    bindPID?: number;
+    appendVolume?: string[];
+}
+
+export interface OVMDarwinArm64InitEvent {
+    decompress: "running" | "success";
+    writeConfig: "running" | "success";
+    exit: void;
+    error: string;
+}
+
+export interface OVMDarwinArm64StartEvent {
+    start: string;
+    ready: void;
+    exit: void;
+    error: string;
+}
+
+export interface OVMDarwinArm64Info {
+    podmanSocketPath: string,
+    sshPort: number,
+    sshUser: string,
+    sshPublicKeyPath: string,
+    sshPrivateKeyPath: string,
+}
+
+export interface OVMDarwinArm64State {
+    state: "Running" | "Stopped";
+    canStart: boolean;
+    canPause: boolean;
+    canResume: boolean;
+    canRequestStop: boolean;
+    canStop: boolean;
 }
 
 // ----- windows

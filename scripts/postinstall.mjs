@@ -6,59 +6,57 @@ import { pipeline } from "node:stream/promises";
 import { fileURLToPath } from "node:url";
 import { homedir } from "node:os";
 import crypto from "node:crypto";
+import { tgz } from "compressing";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-if (!["darwin", "win32"].includes(process.platform) || (process.platform === "win32" && process.arch !== "x64")) {
-    console.warn("[OVM]: Currently only supports MacOS(arm64 and x64) and Windows(x64)");
+const resourceJSON = JSON.parse(fs.readFileSync(join(__dirname, "..", "resource.json"), "utf-8"));
+
+const info = resourceJSON[`${process.platform}-${process.arch}`];
+if (!info) {
+    const supportList = Object.keys(resourceJSON).map(item => item.split("-").join(" ")).join(", ");
+    console.warn(`[OVM]: Currently only supports ${supportList}`);
     process.exit(0);
 }
 
-const packageJSON = JSON.parse(fs.readFileSync(join(__dirname, "..", "package.json"), "utf-8"));
-
-const tasks = [
-    ...toTasks(packageJSON.ovm[`${process.platform}-core`], "core"),
-    ...toTasks(packageJSON.ovm[`${process.platform}-ovm`], "ovm"),
-];
-
 const cacheDir = join(homedir(), ".cache", "ovm");
-await fsP.mkdir(cacheDir, { recursive: true });
+const distDir = join(__dirname, "..", "vm-resources");
+await fsP.mkdir(distDir, { recursive: true });
 
-const vmResourcesPath = join(__dirname, "..", "vm-resources");
-await fsP.mkdir(vmResourcesPath, { recursive: true });
+for (const { name, version, download: downloadTemplate, sha256, out } of info) {
+    const downloadURL = downloadTemplate.replace(/\{version}/g, version);
+    const cachePath = join(cacheDir, `${name}-${version}`, ...out.split("/"));
+    await fsP.mkdir(dirname(cachePath), { recursive: true });
 
-for (const { url, outputName, sha256, version, type } of tasks) {
-    const cache = join(cacheDir, `${type}-${version}`, outputName);
-    await fsP.mkdir(dirname(cache), { recursive: true });
+    await download(5)(downloadURL, cachePath, sha256);
 
-    await download(5)(url, cache, sha256);
+    let distPath;
+    if (out.endsWith(".tar.gz")) {
+        distPath = join(distDir, out.replace(".tar.gz", ""));
+        await fsP.rm(distPath, { force: true, recursive: true });
+        await tgz.uncompress(cachePath, distPath)
+    } else {
+        distPath = join(distDir, out);
+        await fsP.rm(distPath, { force: true, recursive: true });
+        await fsP.mkdir(dirname(distPath), { recursive: true });
+        await fsP.copyFile(cachePath, distPath);
+    }
 
-    const outputPath = join(vmResourcesPath, outputName);
-    await fsP.copyFile(cache, outputPath);
-    console.log(`[OVM]: Downloaded ${outputPath}`);
+    console.log(`[OVM]: Downloaded ${distPath}`);
 }
 
-const binName = process.platform === "win32" ? "ovm.exe" : "ovm";
-const ovmStat = await fsP.stat(join(vmResourcesPath, binName));
-if (!(ovmStat.mode & fs.constants.X_OK)) {
-    await fsP.chmod(join(vmResourcesPath, binName), 0o755);
+const files = await fsP.readdir(distDir, { withFileTypes: true, recursive: true });
+for (const file of files) {
+    if (file.isDirectory()) {
+        continue;
+    }
+    if (["gvproxy", "krunkit", "ovm", "ovm.exe"].includes(file.name)) {
+        await fsP.chmod(join(file.path, file.name), 0o755);
+    }
 }
 
 console.log("[OVM]: Downloaded successfully");
-
-function toTasks (metadata, type) {
-    return metadata.info[process.arch].map(f => {
-        const [remoteFile, outputName, sha256] = f.split("#");
-        return {
-            url: `${metadata.endpoint}/${metadata.version}/${remoteFile}`,
-            outputName,
-            sha256,
-            version: metadata.version,
-            type,
-        };
-    })
-}
 
 function download(retry) {
     let r = retry;
