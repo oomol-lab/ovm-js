@@ -34,7 +34,7 @@
       "name": "ovm",
       "version": "v0.0.1",
       "download": "https://static.oomol.com/ovm-resources/Bauklotze/{version}/ovm-arm64",
-      "sha256": "504e66bbeb81c1e7a0f4333085b2c6344e2a4318976af60e3038f6461226ae2c",
+      "sha256": "bffe7d104ecd1acc0b59867dea306923e6903fdb38f7dd55cb337bb4c590d501",
       "out": "bin/ovm"
     },
     {
