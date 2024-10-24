@@ -10,6 +10,7 @@ import type {
 } from "./type";
 import { createEventSource } from "eventsource-client";
 import fetch from "node-fetch";
+import { enableDebug } from "./utils";
 
 enum Method {
     GET = "GET",
@@ -25,7 +26,7 @@ abstract class Request {
 
     protected readonly socketPath: string;
 
-    protected constructor(socketPath: string) {
+    protected constructor(socketPath: string, private readonly uri = "http://ovm/") {
         this.socketPath = socketPath;
     }
 
@@ -35,7 +36,7 @@ abstract class Request {
                 timeout,
                 method,
                 socketPath: socketPath || this.socketPath,
-                path: `http://ovm/${p}`,
+                path: `${this.uri}${p}`,
             }, (response) => {
                 response.setEncoding("utf8");
 
@@ -50,6 +51,9 @@ abstract class Request {
                         return reject(new Error(`Request Failed. Status Code: ${statusCode}, Response: ${body}`));
                     }
 
+                    if (enableDebug()) {
+                        console.log(`[OVM] Request - ${method} ${p} ${statusCode} ${body}`);
+                    }
                     return resolve(body);
                 });
             })
@@ -86,7 +90,7 @@ abstract class Request {
         });
 
         const es = createEventSource({
-            url: "http://ovm/exec",
+            url: `${this.uri}exec`,
             fetch: (url, init) => {
                 return fetch(url, {
                     ...init,
@@ -159,11 +163,11 @@ type RequestDarwinArm64RawInfoResp = {
 
 export class RequestDarwinArm64 extends Request {
     public constructor(workspace: string) {
-        super(path.join(workspace, "tmp", "ovm_restapi.socks"));
+        super(path.join(workspace, "tmp", "ovm_restapi.socks"), "http://ovm/default/");
     }
 
     public async info(): Promise<OVMDarwinArm64Info> {
-        const result = JSON.parse(await this.do("default/info", Method.GET)) as RequestDarwinArm64RawInfoResp;
+        const result = JSON.parse(await this.do("info", Method.GET)) as RequestDarwinArm64RawInfoResp;
         return {
             podmanSocketPath: result.GvProxy.HostSocks[0],
             sshPort: result.SSH.Port,
@@ -174,7 +178,7 @@ export class RequestDarwinArm64 extends Request {
     }
 
     public async state(): Promise<OVMDarwinArm64State> {
-        const result = JSON.parse(await this.do("default/vmstat", Method.GET)) as { CurrentStat: OVMDarwinArm64State["state"] };
+        const result = JSON.parse(await this.do("vmstat", Method.GET)) as { CurrentStat: OVMDarwinArm64State["state"] };
         return {
             state: result.CurrentStat,
             canStop: true,
@@ -183,7 +187,6 @@ export class RequestDarwinArm64 extends Request {
             canResume: false,
             canStart: true,
         };
-
     }
 
     public pause(): Promise<void> {
