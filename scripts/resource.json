@@ -46,9 +46,9 @@
     },
     {
       "name": "libexec",
-      "version": "v1.0.2",
+      "version": "v1.0.3",
       "download": "https://static.oomol.com/ovm-resources/libexec/{version}/libexec-darwin-arm64.tar.gz",
-      "sha256": "ea5661d94bb929f7b72bc09591fbf2c62a13a6c7e2032356de2fd931827453cd",
+      "sha256": "3e5b1e9cc419b36015993970c7d698a3888cae2302ae2852559971f82f4b3e0f",
       "out": "libexec.tar.gz"
     }
   ],
