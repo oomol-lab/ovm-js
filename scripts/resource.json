@@ -41,7 +41,7 @@
       "name": "bootable",
       "version": "v0.0.1",
       "download": "https://static.oomol.com/ovm-resources/Bauklotze/{version}/bootable.img.xz",
-      "sha256": "c8dea951353eda6baddff0b3ce36749f1eb0d933e83b5f3cb3230444d114ed15",
+      "sha256": "6532401ad0b6938da411ccb8304d2ccaf1030afb9c71d947ccc57b0f905ea62f",
       "out": "bootable.img.xz"
     },
     {
