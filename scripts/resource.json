@@ -62,9 +62,9 @@
     },
     {
       "name": "rootfs",
-      "version": "v1.0.0-RC8",
+      "version": "v1.0.0-RC9",
       "download": "https://static.oomol.com/ovm-resources/ovm-builder/{version}/rootfs-amd64.zst",
-      "sha256": "a3f058a46fceb6bcc4a1e7e5b217cdfdab1b74a7858d43bd573adb0fbc97268b",
+      "sha256": "346c736b611dbeeaf556a2ae712db788aec2fa6e5028438d050b207e2555d692",
       "out": "rootfs.zst"
     }
   ]
