@@ -34,14 +34,14 @@
       "name": "ovm",
       "version": "v0.0.1",
       "download": "https://static.oomol.com/ovm-resources/Bauklotze/{version}/ovm-arm64",
-      "sha256": "6317fec2909c4cf92c2bf3de34ed0b19803a6dd6993669e8cb6cab20ff7d8931",
+      "sha256": "0602b5698f17bcbc099d9230a54a0c5707801faa67fda55ec6323cf9de2aeb34",
       "out": "bin/ovm"
     },
     {
       "name": "bootable",
       "version": "v0.0.1",
       "download": "https://static.oomol.com/ovm-resources/Bauklotze/{version}/bootable.img.xz",
-      "sha256": "6532401ad0b6938da411ccb8304d2ccaf1030afb9c71d947ccc57b0f905ea62f",
+      "sha256": "20fb0fbbd507a83c106c693955267667fc4f0d55e20d18c6ab7a11e941600546",
       "out": "bootable.img.xz"
     },
     {
