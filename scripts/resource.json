@@ -34,7 +34,7 @@
       "name": "ovm",
       "version": "v0.0.1",
       "download": "https://static.oomol.com/ovm-resources/Bauklotze/{version}/ovm-arm64",
-      "sha256": "0602b5698f17bcbc099d9230a54a0c5707801faa67fda55ec6323cf9de2aeb34",
+      "sha256": "80580bc42378c577d5da28576c32d6d149b411ccb97b90684e5e787994483a37",
       "out": "bin/ovm"
     },
     {
@@ -46,9 +46,9 @@
     },
     {
       "name": "libexec",
-      "version": "v1.0.3",
+      "version": "v1.0.4",
       "download": "https://static.oomol.com/ovm-resources/libexec/{version}/libexec-darwin-arm64.tar.gz",
-      "sha256": "3e5b1e9cc419b36015993970c7d698a3888cae2302ae2852559971f82f4b3e0f",
+      "sha256": "367e70676ba9d33b4b6ca5746222dcad7a5306fef1f547e460048c9d5c311142",
       "out": "libexec.tar.gz"
     }
   ],
