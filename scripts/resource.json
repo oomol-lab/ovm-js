@@ -32,9 +32,9 @@
   "darwin-arm64": [
     {
       "name": "ovm",
-      "version": "v0.0.1",
+      "version": "v1.0.0-RC4",
       "download": "https://static.oomol.com/ovm-resources/Bauklotze/{version}/ovm-arm64",
-      "sha256": "c48f7c34f5d577b459ac7afc7ce55bc314a4185f72e22edc088ead3d403b69f4",
+      "sha256": "f46353feb7e5be04a45b1f40107bd63fb12e882262397307b6ffb317cfd183c6",
       "out": "bin/ovm"
     },
     {
