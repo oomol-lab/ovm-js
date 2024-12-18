@@ -32,17 +32,17 @@
   "darwin-arm64": [
     {
       "name": "ovm",
-      "version": "v1.0.0-RC5",
+      "version": "v1.0.0-RC6",
       "download": "https://static.oomol.com/ovm-resources/Bauklotze/{version}/ovm-arm64",
-      "sha256": "3781f92470de67c94f8d3e49e0a8785f3fbeec6442177343f38aed10d73c901d",
+      "sha256": "8b658e81dc7ec73a6f45dd33a397db01758ea70d7f8687fd600aaba536a39137",
       "out": "bin/ovm"
     },
     {
       "name": "bootable",
       "version": "v0.0.1",
-      "download": "https://static.oomol.com/ovm-resources/Bauklotze/{version}/bootable.img.xz",
-      "sha256": "20fb0fbbd507a83c106c693955267667fc4f0d55e20d18c6ab7a11e941600546",
-      "out": "bootable.img.xz"
+      "download": "https://static.oomol.com/ovm-resources/Bauklotze/{version}/bootable.img.zst",
+      "sha256": "e62707e62ba71cd1f74e0fe784f23b9859711211da6d250b492b3d307601b210",
+      "out": "bootable.img.zst"
     },
     {
       "name": "libexec",
