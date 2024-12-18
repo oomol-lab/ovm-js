@@ -44,7 +44,7 @@ export const resourceArm64 = (name: "ovm" | "image", resource: OVMDarwinArm64Opt
             return join(path, "bin", "ovm");
         }
         case "image": {
-            return join(path, "bootable.img.xz");
+            return join(path, "bootable.img.zst");
         }
     }
 };
