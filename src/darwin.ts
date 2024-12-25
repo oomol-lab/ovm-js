@@ -1,29 +1,29 @@
-import { RequestDarwinArm64 } from "./request";
+import { RequestDarwin } from "./request";
 import cp from "node:child_process";
 import type { EventReceiver } from "remitter";
 import { Remitter } from "remitter";
-import type { OVMDarwinArm64InitEvent, OVMDarwinArm64Options, OVMDarwinArm64StartEvent } from "./type";
+import type { OVMDarwinInitEvent, OVMDarwinOptions, OVMDarwinStartEvent } from "./type";
 import { Restful } from "./event_restful";
 import fs from "node:fs/promises";
 import path from "node:path";
 import { tmpdir } from "node:os";
-import { enableDebug, resourceArm64 } from "./utils";
+import { enableDebug, resource } from "./utils";
 
-export class DarwinOVMArm64 extends RequestDarwinArm64 {
+export class DarwinOVM extends RequestDarwin {
     public readonly events: {
-        init: EventReceiver<OVMDarwinArm64InitEvent>;
-        start: EventReceiver<OVMDarwinArm64StartEvent>;
+        init: EventReceiver<OVMDarwinInitEvent>;
+        start: EventReceiver<OVMDarwinStartEvent>;
     };
     readonly #events: {
-        init: Remitter<OVMDarwinArm64InitEvent>;
-        start: Remitter<OVMDarwinArm64StartEvent>;
+        init: Remitter<OVMDarwinInitEvent>;
+        start: Remitter<OVMDarwinStartEvent>;
     };
 
     private restful: Record<"init" | "start", Restful>;
     private restfulWithInit: string;
     private restfulWithStart: string;
 
-    private constructor(private options: OVMDarwinArm64Options) {
+    private constructor(private options: OVMDarwinOptions) {
         super(options.workspace);
         this.events = this.#events = {
             init: new Remitter(),
@@ -31,11 +31,11 @@ export class DarwinOVMArm64 extends RequestDarwinArm64 {
         };
     }
 
-    public static async create(options: OVMDarwinArm64Options): Promise<DarwinOVMArm64> {
+    public static async create(options: OVMDarwinOptions): Promise<DarwinOVM> {
         await fs.mkdir(options.workspace, {
             recursive: true,
         });
-        const ovm = new DarwinOVMArm64(options);
+        const ovm = new DarwinOVM(options);
         await Promise.all([
             ovm.initEventRestful(),
         ]);
@@ -50,13 +50,13 @@ export class DarwinOVMArm64 extends RequestDarwinArm64 {
 
         this.#events.init.remitAny((o) => {
             return this.restful.init.events.onAny((data) => {
-                o.emit(data.event as keyof OVMDarwinArm64InitEvent, data.data);
+                o.emit(data.event as keyof OVMDarwinInitEvent, data.data);
             });
         });
 
         this.#events.start.remitAny((o) => {
             return this.restful.start.events.onAny((data) => {
-                o.emit(data.event as keyof OVMDarwinArm64StartEvent, data.data);
+                o.emit(data.event as keyof OVMDarwinStartEvent, data.data);
             });
         });
 
@@ -82,13 +82,13 @@ export class DarwinOVMArm64 extends RequestDarwinArm64 {
             });
         });
 
-        const ovmBin = resourceArm64("ovm", this.options.resource);
+        const ovmBin = resource("ovm", this.options.resource);
         const ovmArgs = [
             "machine",
             "init",
             "--cpus", String(this.options.cpu),
             "--memory", String(this.options.memory),
-            "--boot", resourceArm64("image", this.options.resource),
+            "--boot", resource("image", this.options.resource),
             "--boot-version", this.options.versions.image,
             "--data-version", this.options.versions.data,
             "--report-url", `unix://${this.restfulWithInit}`,
@@ -137,7 +137,7 @@ export class DarwinOVMArm64 extends RequestDarwinArm64 {
             });
         });
 
-        const ovmBin = resourceArm64("ovm", this.options.resource);
+        const ovmBin = resource("ovm", this.options.resource);
         const ovmArgs = [
             "machine",
             "start",
