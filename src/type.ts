@@ -69,6 +69,8 @@ export interface OVMWindowsOptions {
     cwd: string;
 }
 
+export type OVMWindowsPrepareEventValueType = keyof typeof OVMWindowsPrepareEventValue;
+
 export enum OVMWindowsPrepareEventValue {
     SystemNotSupport = "SystemNotSupport",
 
@@ -84,6 +86,8 @@ export enum OVMWindowsPrepareEventValue {
     UpdateWSLFailed = "UpdateWSLFailed",
     UpdateWSLSuccess = "UpdateWSLSuccess",
 }
+
+export type OVMWindowsRunEventValueType = keyof typeof OVMWindowsRunEventValue;
 
 export enum OVMWindowsRunEventValue {
     UpdatingRootFS = "UpdatingRootFS",
