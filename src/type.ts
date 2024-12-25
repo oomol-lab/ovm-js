@@ -1,80 +1,5 @@
+// ----- darwin
 export interface OVMDarwinOptions {
-    name: string;
-    cpu: number;
-    memory: number;
-    resource?: {
-        ovm?: string;
-        initrd?: string;
-        kernel?: string;
-        rootfs?: string;
-    } | string;
-    targetDir: string;
-    socketDir: string;
-    logDir: string;
-    sshKeyDir: string;
-    versions:{
-        initrd: string;
-        kernel: string;
-        rootfs: string;
-        data: string;
-    };
-    bindPID?: number | string;
-    powerSaveMode: boolean;
-    extendShareDir?: string,
-    cwd: string;
-}
-
-export enum OVMDarwinAppEventValue {
-    Initializing = "Initializing",
-    GVProxyReady = "GVProxyReady",
-    IgnitionProgress = "IgnitionProgress",
-    IgnitionDone = "IgnitionDone",
-    Ready = "Ready",
-}
-
-export interface OVMDarwinEventData {
-    app: OVMDarwinAppEventValue,
-    error: string,
-    exit: void,
-}
-
-export interface OVMDarwinInfo {
-    podmanSocketPath: string,
-    sshPort: number,
-    sshUser: string,
-    sshPublicKeyPath: string,
-    sshPrivateKeyPath: string,
-    sshPublicKey: string,
-    sshPrivateKey: string,
-}
-
-/**
- * @see https://github.com/Code-Hex/vz/blob/bd29a7ea3d39465c4224bfb01e990e8c220a8449/virtualization.go#L23
- */
-export enum OVMDarwinVzState {
-    VirtualMachineStateStopped = "VirtualMachineStateStopped",
-    VirtualMachineStateRunning = "VirtualMachineStateRunning",
-    VirtualMachineStatePaused = "VirtualMachineStatePaused",
-    VirtualMachineStateError = "VirtualMachineStateError",
-    VirtualMachineStateStarting = "VirtualMachineStateStarting",
-    VirtualMachineStatePausing = "VirtualMachineStatePausing",
-    VirtualMachineStateResuming = "VirtualMachineStateResuming",
-    VirtualMachineStateStopping = "VirtualMachineStateStopping",
-    VirtualMachineStateSaving = "VirtualMachineStateSaving",
-    VirtualMachineStateRestoring = "VirtualMachineStateRestoring",
-}
-
-export interface OVMDarwinState {
-    state: OVMDarwinVzState;
-    canStart: boolean;
-    canPause: boolean;
-    canResume: boolean;
-    canRequestStop: boolean;
-    canStop: boolean;
-}
-
-// ----- darwin arm64
-export interface OVMDarwinArm64Options {
     cpu: number;
     memory: number;
     resource?: {
@@ -90,21 +15,21 @@ export interface OVMDarwinArm64Options {
     appendVolume?: string[];
 }
 
-export interface OVMDarwinArm64InitEvent {
+export interface OVMDarwinInitEvent {
     decompress: "running" | "success";
     writeConfig: "running" | "success";
     exit: void;
     error: string;
 }
 
-export interface OVMDarwinArm64StartEvent {
+export interface OVMDarwinStartEvent {
     start: string;
     ready: void;
     exit: void;
     error: string;
 }
 
-export interface OVMDarwinArm64Info {
+export interface OVMDarwinInfo {
     podmanSocketPath: string,
     sshPort: number,
     sshUser: string,
@@ -112,7 +37,7 @@ export interface OVMDarwinArm64Info {
     sshPrivateKeyPath: string,
 }
 
-export interface OVMDarwinArm64State {
+export interface OVMDarwinState {
     state: "Running" | "Stopped";
     canStart: boolean;
     canPause: boolean;

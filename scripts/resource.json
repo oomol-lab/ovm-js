@@ -2,39 +2,32 @@
   "darwin-x64": [
     {
       "name": "ovm",
-      "version": "v2.0.0-RC8",
-      "download": "https://static.oomol.com/ovm-resources/ovm/{version}/ovm-amd64",
-      "sha256": "7f576fe11b62a8af8e932401c4749d26b3745d46cefd65bd3091ebf010ba837c",
-      "out": "ovm"
+      "version": "v1.0.0-RC7",
+      "download": "https://static.oomol.com/ovm-resources/Bauklotze/{version}/ovm-amd64",
+      "sha256": "40bb26e0859b1246c7e862568ec3d46c9975931559288f9449cbf091431fe637",
+      "out": "bin/ovm"
     },
     {
-      "name": "rootfs",
-      "version": "v1.0.3",
-      "download": "https://static.oomol.com/ovm-resources/ovm-core/{version}/applehv-rootfs-amd64.rootfs.erofs",
-      "sha256": "7436bb01151154bd967af286435e65194da66570760cdc50e26a3702ac7ff87a",
-      "out": "rootfs.erofs"
+      "name": "bootable",
+      "version": "v0.0.1",
+      "download": "https://static.oomol.com/ovm-resources/Bauklotze/{version}/bootable-darwin-amd64.img.zst",
+      "sha256": "8d1da14847745cd6f76927eed39d8fa4fa81027149261e58a3c9aca0d1d985f7",
+      "out": "bootable.img.zst"
     },
     {
-      "name": "initrd",
-      "version": "v1.0.3",
-      "download": "https://static.oomol.com/ovm-resources/ovm-core/{version}/initrd-amd64.initrd.gz",
-      "sha256": "064eaf482a0ed8b8b7071d4b85f37ff26e201ef844566cac6b6406b8724cb698",
-      "out": "initrd.gz"
-    },
-    {
-      "name": "kernel",
-      "version": "v1.0.3",
-      "download": "https://static.oomol.com/ovm-resources/ovm-core/{version}/kernel-amd64.bzImage",
-      "sha256": "fba25a5e0019f25cb43cb18571eb1e4d816324716de1cd98d14defca397ca158",
-      "out": "bzImage"
+      "name": "libexec",
+      "version": "v0.0.1",
+      "download": "https://static.oomol.com/ovm-resources/Bauklotze/{version}/libexec-darwin-amd64.tar.gz",
+      "sha256": "632de5605647b19d2c50211592cb2b9b9b4ab918f828540425069657526e7baf",
+      "out": "libexec.tar.gz"
     }
   ],
   "darwin-arm64": [
     {
       "name": "ovm",
-      "version": "v1.0.0-RC6",
+      "version": "v1.0.0-RC7",
       "download": "https://static.oomol.com/ovm-resources/Bauklotze/{version}/ovm-arm64",
-      "sha256": "8b658e81dc7ec73a6f45dd33a397db01758ea70d7f8687fd600aaba536a39137",
+      "sha256": "362a8983e805fb9efd2caaea4b95be06b4a0e3b547d7c52044950f1c8b1c406e",
       "out": "bin/ovm"
     },
     {
