@@ -72,6 +72,7 @@ export interface OVMWindowsOptions {
 export enum OVMWindowsPrepareEventValue {
     SystemNotSupport = "SystemNotSupport",
 
+    NotSupportVirtualization = "NotSupportVirtualization",
     NeedEnableFeature = "NeedEnableFeature",
     EnableFeaturing = "EnableFeaturing",
     EnableFeatureFailed = "EnableFeatureFailed",
