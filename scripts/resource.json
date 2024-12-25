@@ -9,16 +9,16 @@
     },
     {
       "name": "bootable",
-      "version": "v0.0.1",
+      "version": "v0.0.2",
       "download": "https://static.oomol.com/ovm-resources/Bauklotze/{version}/bootable-darwin-amd64.img.zst",
       "sha256": "8d1da14847745cd6f76927eed39d8fa4fa81027149261e58a3c9aca0d1d985f7",
       "out": "bootable.img.zst"
     },
     {
       "name": "libexec",
-      "version": "v0.0.1",
+      "version": "v0.0.2",
       "download": "https://static.oomol.com/ovm-resources/Bauklotze/{version}/libexec-darwin-amd64.tar.gz",
-      "sha256": "632de5605647b19d2c50211592cb2b9b9b4ab918f828540425069657526e7baf",
+      "sha256": "47c109475cf63e1fea29ceb06339d8427ddc9599a109ca52741e8a5d216adcba",
       "out": "libexec.tar.gz"
     }
   ],
@@ -32,8 +32,8 @@
     },
     {
       "name": "bootable",
-      "version": "v0.0.1",
-      "download": "https://static.oomol.com/ovm-resources/Bauklotze/{version}/bootable.img.zst",
+      "version": "v0.0.2",
+      "download": "https://static.oomol.com/ovm-resources/Bauklotze/{version}/bootable-darwin-arm64.img.zst",
       "sha256": "e62707e62ba71cd1f74e0fe784f23b9859711211da6d250b492b3d307601b210",
       "out": "bootable.img.zst"
     },
