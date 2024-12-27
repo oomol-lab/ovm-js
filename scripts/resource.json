@@ -16,9 +16,9 @@
     },
     {
       "name": "libexec",
-      "version": "v0.0.2",
-      "download": "https://static.oomol.com/ovm-resources/Bauklotze/{version}/libexec-darwin-amd64.tar.gz",
-      "sha256": "47c109475cf63e1fea29ceb06339d8427ddc9599a109ca52741e8a5d216adcba",
+      "version": "v1.0.6",
+      "download": "https://static.oomol.com/ovm-resources/libexec/{version}/libexec-darwin-amd64.tar.gz",
+      "sha256": "3c0575bd58b951d27bdb5da0f78e76eb57f48c746e6e214e734cdcb13ffffb4e",
       "out": "libexec.tar.gz"
     }
   ],
@@ -39,9 +39,9 @@
     },
     {
       "name": "libexec",
-      "version": "v1.0.5",
+      "version": "v1.0.6",
       "download": "https://static.oomol.com/ovm-resources/libexec/{version}/libexec-darwin-arm64.tar.gz",
-      "sha256": "f499cf19b430d3c4c194cba5ee3bf2b6571a1e97c2f11dd74a190ac03cdc98c3",
+      "sha256": "56207fee743185ec183a3ea63fd843ea207fd267f1ff2644ad5f8c52c8633e7e",
       "out": "libexec.tar.gz"
     }
   ],
