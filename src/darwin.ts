@@ -2,7 +2,15 @@ import { RequestDarwin } from "./request";
 import cp from "node:child_process";
 import type { EventReceiver } from "remitter";
 import { Remitter } from "remitter";
-import type { OVMDarwinInitEvent, OVMDarwinOptions, OVMDarwinStartEvent } from "./type";
+import {
+    OVMDarwinInitEventValue,
+    OVMDarwinRunEventValue,
+    type OVMDarwinInitEvent,
+    type OVMDarwinInitEventValueType,
+    type OVMDarwinOptions,
+    type OVMDarwinRunEvent,
+    type OVMDarwinRunEventValueType,
+} from "./type";
 import { Restful } from "./event_restful";
 import fs from "node:fs/promises";
 import path from "node:path";
@@ -12,22 +20,22 @@ import { enableDebug, resource } from "./utils";
 export class DarwinOVM extends RequestDarwin {
     public readonly events: {
         init: EventReceiver<OVMDarwinInitEvent>;
-        start: EventReceiver<OVMDarwinStartEvent>;
+        run: EventReceiver<OVMDarwinRunEvent>;
     };
     readonly #events: {
         init: Remitter<OVMDarwinInitEvent>;
-        start: Remitter<OVMDarwinStartEvent>;
+        run: Remitter<OVMDarwinRunEvent>;
     };
 
-    private restful: Record<"init" | "start", Restful>;
+    private restful: Record<"init" | "run", Restful>;
     private restfulWithInit: string;
-    private restfulWithStart: string;
+    private restfulWithRun: string;
 
     private constructor(private options: OVMDarwinOptions) {
         super(options.workspace);
         this.events = this.#events = {
             init: new Remitter(),
-            start: new Remitter(),
+            run: new Remitter(),
         };
     }
 
@@ -45,27 +53,27 @@ export class DarwinOVM extends RequestDarwin {
     private async initEventRestful(): Promise<void> {
         this.restful = {
             init: new Restful(),
-            start: new Restful(),
+            run: new Restful(),
         };
 
         this.#events.init.remitAny((o) => {
             return this.restful.init.events.onAny((data) => {
-                o.emit(data.event as keyof OVMDarwinInitEvent, data.data);
+                o.emit(data.event as OVMDarwinInitEventValueType, data.data);
             });
         });
 
-        this.#events.start.remitAny((o) => {
-            return this.restful.start.events.onAny((data) => {
-                o.emit(data.event as keyof OVMDarwinStartEvent, data.data);
+        this.#events.run.remitAny((o) => {
+            return this.restful.run.events.onAny((data) => {
+                o.emit(data.event as OVMDarwinRunEventValueType, data.data);
             });
         });
 
         const dir = await fs.mkdtemp(path.join(tmpdir(), "ovm-"));
         this.restfulWithInit = path.join(dir, "event-restful-init.sock");
-        this.restfulWithStart = path.join(dir, "event-restful-start.sock");
+        this.restfulWithRun = path.join(dir, "event-restful-run.sock");
 
         this.restful.init.start(this.restfulWithInit);
-        this.restful.start.start(this.restfulWithStart);
+        this.restful.run.start(this.restfulWithRun);
     }
 
     public init(): void {
@@ -118,7 +126,9 @@ export class DarwinOVM extends RequestDarwin {
 
         initTimeout
             .catch(() => {
-                this.#events.init.emit("error", "OVM init timeout");
+                this.#events.init.emit(OVMDarwinInitEventValue.Error, {
+                    value: "OVM init timeout",
+                });
             });
 
     }
@@ -131,7 +141,7 @@ export class DarwinOVM extends RequestDarwin {
                 reject();
             }, 10 * 1000);
 
-            const disposer = this.#events.start.onceAny(() => {
+            const disposer = this.#events.run.onceAny(() => {
                 clearTimeout(id);
                 resolve();
             });
@@ -141,7 +151,7 @@ export class DarwinOVM extends RequestDarwin {
         const ovmArgs = [
             "machine",
             "start",
-            "--report-url", `unix://${this.restfulWithStart}`,
+            "--report-url", `unix://${this.restfulWithRun}`,
             "--workspace", this.options.workspace,
             "--ppid", String(this.options.bindPID),
             "default",
@@ -163,7 +173,9 @@ export class DarwinOVM extends RequestDarwin {
 
         startTimeout
             .catch(() => {
-                this.#events.start.emit("error", "OVM start timeout");
+                this.#events.run.emit(OVMDarwinRunEventValue.Error, {
+                    value: "OVM run timeout",
+                });
             });
     }
 }
