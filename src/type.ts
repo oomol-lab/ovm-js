@@ -15,18 +15,31 @@ export interface OVMDarwinOptions {
     appendVolume?: string[];
 }
 
-export interface OVMDarwinInitEvent {
-    decompress: "running" | "success";
-    writeConfig: "running" | "success";
-    exit: void;
-    error: string;
+export type OVMDarwinInitEventValueType = keyof typeof OVMDarwinInitEventValue;
+
+export enum OVMDarwinInitEventValue {
+    Error = "Error",
+    Exit = "Exit",
 }
 
-export interface OVMDarwinStartEvent {
-    start: string;
-    ready: void;
-    exit: void;
-    error: string;
+export type OVMDarwinRunEventValueType = keyof typeof OVMDarwinRunEventValue;
+
+export enum OVMDarwinRunEventValue {
+    Ready = "Ready",
+    Error = "Error",
+    Exit = "Exit",
+}
+
+export type OVMDarwinInitEvent = {
+    [k in OVMDarwinInitEventValueType]: {
+        value?: string;
+    }
+}
+
+export type OVMDarwinRunEvent = {
+    [k in OVMDarwinRunEventValueType]: {
+        value?: string;
+    }
 }
 
 export interface OVMDarwinInfo {
@@ -69,9 +82,9 @@ export interface OVMWindowsOptions {
     cwd: string;
 }
 
-export type OVMWindowsPrepareEventValueType = keyof typeof OVMWindowsPrepareEventValue;
+export type OVMWindowsInitEventValueType = keyof typeof OVMWindowsInitEventValue;
 
-export enum OVMWindowsPrepareEventValue {
+export enum OVMWindowsInitEventValue {
     SystemNotSupport = "SystemNotSupport",
 
     NotSupportVirtualization = "NotSupportVirtualization",
@@ -85,27 +98,27 @@ export enum OVMWindowsPrepareEventValue {
     UpdatingWSL = "UpdatingWSL",
     UpdateWSLFailed = "UpdateWSLFailed",
     UpdateWSLSuccess = "UpdateWSLSuccess",
+    Exit = "Exit",
+    Error = "Error",
 }
 
 export type OVMWindowsRunEventValueType = keyof typeof OVMWindowsRunEventValue;
 
 export enum OVMWindowsRunEventValue {
-    UpdatingRootFS = "UpdatingRootFS",
-    UpdateRootFSFailed = "UpdateRootFSFailed",
-    UpdateRootFSSuccess = "UpdateRootFSSuccess",
-
-    UpdatingData = "UpdatingData",
-    UpdateDataFailed = "UpdateDataFailed",
-    UpdateDataSuccess = "UpdateDataSuccess",
-
-    Starting = "Starting",
     Ready = "Ready",
+    Exit = "Exit",
+    Error = "Error",
 }
 
-export interface OVMWindowsEventData {
-    run: OVMWindowsRunEventValue,
-    prepare: OVMWindowsPrepareEventValue,
-    error: string,
-    exit: void,
+export type OVMWindowsInitEvent = {
+    [k in OVMWindowsInitEventValueType]: {
+        value?: string;
+    }
+}
+
+export type OVMWindowsRunEvent = {
+    [k in OVMWindowsRunEventValueType]: {
+        value?: string;
+    }
 }
 
