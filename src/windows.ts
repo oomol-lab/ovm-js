@@ -1,15 +1,28 @@
 import cp from "node:child_process";
 import type { EventReceiver } from "remitter";
 import { Remitter } from "remitter";
-import type { OVMWindowsEventData, OVMWindowsOptions } from "./type";
+import type {
+    OVMWindowsInitEvent,
+    OVMWindowsOptions,
+    OVMWindowsRunEvent,
+    OVMWindowsRunEventValueType,
+    OVMWindowsInitEventValueType,
+} from "./type";
+import { OVMWindowsInitEventValue, OVMWindowsRunEventValue } from "./type";
 import { Restful } from "./event_restful";
 import { RequestWindows } from "./request";
 import { enableDebug, resource } from "./utils";
 
 export class WindowsOVM extends RequestWindows {
-    public readonly events : EventReceiver<OVMWindowsEventData>;
-    readonly #events: Remitter<OVMWindowsEventData>;
-    private restful: Record<"run" | "prepare", Restful>;
+    public readonly events: {
+        init: EventReceiver<OVMWindowsInitEvent>;
+        run: EventReceiver<OVMWindowsRunEvent>;
+    };
+    readonly #events: {
+        init: Remitter<OVMWindowsInitEvent>;
+        run: Remitter<OVMWindowsRunEvent>;
+    };
+    private restful: Record<"run" | "init", Restful>;
     private readonly restfulNPipeRunName: string;
     private readonly restfulNPipePrepareName: string;
 
@@ -18,7 +31,10 @@ export class WindowsOVM extends RequestWindows {
         this.restfulNPipeRunName = `ovm-${options.name}-restful`;
         this.restfulNPipePrepareName = `ovm-prepare-${options.name}-restful`;
 
-        this.events = this.#events = new Remitter();
+        this.events = this.#events = {
+            init: new Remitter(),
+            run: new Remitter(),
+        };
     }
 
     public static create(options: OVMWindowsOptions): WindowsOVM {
@@ -30,34 +46,34 @@ export class WindowsOVM extends RequestWindows {
     private initEventRestful(): void {
         this.restful = {
             run: new Restful(),
-            prepare: new Restful(),
+            init: new Restful(),
         };
 
-        this.#events.remitAny((o) => {
-            return this.restful.run.events.onAny((data) => {
-                o.emit(data.event as keyof Omit<OVMWindowsEventData, "prepare">, data.data);
+        this.#events.init.remitAny((o) => {
+            return this.restful.init.events.onAny((data) => {
+                o.emit(data.event as OVMWindowsInitEventValueType, data.data);
             });
         });
 
-        this.#events.remitAny((o) => {
-            return this.restful.prepare.events.onAny((data) => {
-                o.emit(data.event as keyof Omit<OVMWindowsEventData, "run">, data.data);
+        this.#events.run.remitAny((o) => {
+            return this.restful.run.events.onAny((data) => {
+                o.emit(data.event as OVMWindowsRunEventValueType, data.data);
             });
         });
 
         this.restful.run.start(`//./pipe/${this.restfulNPipeRunName}`);
-        this.restful.prepare.start(`//./pipe/${this.restfulNPipePrepareName}`);
+        this.restful.init.start(`//./pipe/${this.restfulNPipePrepareName}`);
     }
 
-    public prepare(): void {
-        const prepareTimeout = new Promise<void>((resolve, reject) => {
+    public init(): void {
+        const initTimeout = new Promise<void>((resolve, reject) => {
             const id = setTimeout(() => {
                 disposer();
                 // eslint-disable-next-line prefer-promise-reject-errors
                 reject();
             }, 30 * 1000);
 
-            const disposer = this.#events.onceAny(() => {
+            const disposer = this.#events.init.onceAny(() => {
                 clearTimeout(id);
                 resolve();
             });
@@ -87,9 +103,11 @@ export class WindowsOVM extends RequestWindows {
 
         ovm.unref();
 
-        prepareTimeout
+        initTimeout
             .catch(() => {
-                this.#events.emit("error", "OVM prepare timeout");
+                this.#events.init.emit(OVMWindowsInitEventValue.Error, {
+                    value: "OVM prepare timeout",
+                });
             });
     }
 
@@ -98,14 +116,14 @@ export class WindowsOVM extends RequestWindows {
             return `${key}=${this.options.versions[key]}`;
         }).join(",");
 
-        const launchTimeout = new Promise<void>((resolve, reject) => {
+        const runTimeout = new Promise<void>((resolve, reject) => {
             const id = setTimeout(() => {
                 disposer();
                 // eslint-disable-next-line prefer-promise-reject-errors
                 reject();
             }, 30 * 1000);
 
-            const disposer = this.#events.onceAny(() => {
+            const disposer = this.#events.run.onceAny(() => {
                 clearTimeout(id);
                 resolve();
             });
@@ -138,9 +156,11 @@ export class WindowsOVM extends RequestWindows {
 
         ovm.unref();
 
-        launchTimeout
+        runTimeout
             .catch(() => {
-                this.#events.emit("error", "OVM run timeout");
+                this.#events.run.emit(OVMWindowsRunEventValue.Error, {
+                    value: "OVM run timeout",
+                });
             });
     }
 }

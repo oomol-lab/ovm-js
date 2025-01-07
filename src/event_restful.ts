@@ -18,7 +18,9 @@ export class Restful {
                 response.statusCode = 200;
                 response.end("ok");
 
-                this.events.emit(parsedUrl.query.event as string, parsedUrl.query.message as string);
+                this.events.emit(parsedUrl.query.name as string, {
+                    value: parsedUrl.query.value as string,
+                });
             } else {
                 response.statusCode = 404;
                 response.end("Not Found");
