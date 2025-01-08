@@ -81,7 +81,7 @@ export class WindowsOVM extends RequestWindows {
 
         const ovmBin = resource("ovm", this.options.resource);
         const ovmArgs = [
-            "prepare",
+            "init",
             "-name", this.options.name,
             "-log-path", this.options.logDir,
             "-event-npipe-name", this.restfulNPipePrepareName,
