@@ -169,11 +169,11 @@ export class RequestDarwin extends Request {
 }
 
 export class RequestWindows extends Request {
-    private readonly prepareSocketPath: string;
+    private readonly initSocketPath: string;
 
     public constructor(name: string) {
         super(`//./pipe/ovm-${name}`);
-        this.prepareSocketPath = `//./pipe/ovm-prepare-${name}`;
+        this.initSocketPath = `//./pipe/ovm-init-${name}`;
     }
 
     public async info(): Promise<OVMWindowsInfo> {
@@ -181,7 +181,7 @@ export class RequestWindows extends Request {
     }
 
     public async enableFeature(): Promise<void> {
-        await this.do("enable-feature", Method.POST, NEVER_TIMEOUT, undefined, this.prepareSocketPath);
+        await this.do("enable-feature", Method.POST, NEVER_TIMEOUT, undefined, this.initSocketPath);
     }
 
     /**
@@ -193,10 +193,10 @@ export class RequestWindows extends Request {
         await this.do("reboot", Method.POST, NEVER_TIMEOUT, {
             runOnce,
             later,
-        }, this.prepareSocketPath);
+        }, this.initSocketPath);
     }
 
     public async updateWSL(): Promise<void> {
-        await this.do("update-wsl", Method.PUT, NEVER_TIMEOUT, undefined, this.prepareSocketPath);
+        await this.do("update-wsl", Method.PUT, NEVER_TIMEOUT, undefined, this.initSocketPath);
     }
 }
