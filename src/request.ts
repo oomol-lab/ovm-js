@@ -129,7 +129,7 @@ type RequestDarwinRawInfoResp = {
 
 export class RequestDarwin extends Request {
     public constructor(workspace: string) {
-        super(path.join(workspace, "tmp", "ovm_restapi.socks"), "http://ovm/default/");
+        super(path.join(workspace, "socks", "ovm_restapi.socks"), "http://ovm/default/");
     }
 
     public async info(): Promise<OVMDarwinInfo> {
@@ -198,5 +198,15 @@ export class RequestWindows extends Request {
 
     public async updateWSL(): Promise<void> {
         await this.do("update-wsl", Method.PUT, NEVER_TIMEOUT, undefined, this.initSocketPath);
+    }
+
+    public async fixWSLConfig(method: "auto" | "open" | "skip"): Promise<void> {
+        await this.do("fix-wsl-config", Method.PUT, NEVER_TIMEOUT, {
+            method,
+        }, this.initSocketPath);
+    }
+
+    public async shutdownWSL(): Promise<void> {
+        await this.do("shutdown-wsl", Method.PUT, NEVER_TIMEOUT, undefined, this.initSocketPath);
     }
 }
