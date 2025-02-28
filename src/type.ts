@@ -18,6 +18,7 @@ export interface OVMDarwinOptions {
 export type OVMDarwinInitEventValueType = keyof typeof OVMDarwinInitEventValue;
 
 export enum OVMDarwinInitEventValue {
+    Success = "Success",
     Error = "Error",
     Exit = "Exit",
 }
@@ -94,10 +95,12 @@ export enum OVMWindowsInitEventValue {
     EnableFeatureSuccess = "EnableFeatureSuccess",
     NeedReboot = "NeedReboot",
 
+    WSLConfigMaybeIncompatible = "WSLConfigMaybeIncompatible",
     NeedUpdateWSL = "NeedUpdateWSL",
     UpdatingWSL = "UpdatingWSL",
     UpdateWSLFailed = "UpdateWSLFailed",
     UpdateWSLSuccess = "UpdateWSLSuccess",
+    Success = "Success",
     Exit = "Exit",
     Error = "Error",
 }
