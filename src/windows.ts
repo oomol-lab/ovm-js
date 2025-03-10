@@ -163,4 +163,38 @@ export class WindowsOVM extends RequestWindows {
                 });
             });
     }
+
+    public migrate(oldImageDir: string, newImageDir: string): Promise<void> {
+        const ovmBin = resource("ovm", this.options.resource);
+        const ovmArgs = [
+            "migrate",
+            "-name", this.options.name,
+            "-log-path", this.options.logDir,
+            "-old-image-dir", oldImageDir,
+            "-new-image-dir", newImageDir,
+        ];
+
+        if (enableDebug()) {
+            console.log(`[OVM] executing: ${ovmBin} ${ovmArgs.join(" ")}`);
+            console.log(`[OVM] cwd: ${this.options.cwd}`);
+        }
+
+        const ovm = cp.spawn(ovmBin, ovmArgs, {
+            timeout: 0,
+            windowsHide: true,
+            detached: false,
+            stdio: "ignore",
+            cwd: this.options.cwd,
+        });
+
+        return new Promise((resolve, reject) => {
+            ovm.once("close", (code) => {
+                if (code === 0) {
+                    resolve();
+                } else {
+                    reject(new Error("OVM migrate failed"));
+                }
+            });
+        });
+    }
 }
