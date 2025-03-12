@@ -48,9 +48,9 @@
   "win32-x64": [
     {
       "name": "ovm",
-      "version": "v1.1.1",
+      "version": "v1.1.2",
       "download": "https://static.oomol.com/ovm-resources/ovm-win/{version}/ovm-amd64.exe",
-      "sha256": "c1d1b835a9a04a61a37ecde61dfcf06ac9ac20f393afc52fa5c13a0d1b31d829",
+      "sha256": "3f234c036435bb68426098fe6efa52fd9e9d7a09a4d5c30359c7e881ce44f703",
       "out": "ovm.exe"
     },
     {
