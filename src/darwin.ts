@@ -90,6 +90,10 @@ export class DarwinOVM extends RequestDarwin {
             });
         });
 
+        this.#events.init.once(OVMDarwinInitEventValue.Exit, async () => {
+            await this.restful.init.stop();
+        });
+
         const ovmBin = resource("ovm", this.options.resource);
         const ovmArgs = [
             "machine",
@@ -129,6 +133,7 @@ export class DarwinOVM extends RequestDarwin {
                 this.#events.init.emit(OVMDarwinInitEventValue.Error, {
                     value: "OVM init timeout",
                 });
+                this.#events.init.emit(OVMDarwinInitEventValue.Exit, {});
             });
 
     }
@@ -145,6 +150,10 @@ export class DarwinOVM extends RequestDarwin {
                 clearTimeout(id);
                 resolve();
             });
+        });
+
+        this.#events.run.once(OVMDarwinRunEventValue.Exit, async () => {
+            await this.restful.run.stop();
         });
 
         const ovmBin = resource("ovm", this.options.resource);
@@ -176,6 +185,18 @@ export class DarwinOVM extends RequestDarwin {
                 this.#events.run.emit(OVMDarwinRunEventValue.Error, {
                     value: "OVM run timeout",
                 });
+                this.#events.run.emit(OVMDarwinRunEventValue.Exit, {});
             });
+    }
+
+    public override async stop(): Promise<void> {
+        const p = new Promise<void>((r) => {
+            this.#events.run.once(OVMDarwinRunEventValue.Exit, () => {
+                r();
+            });
+        });
+
+        await super.stop();
+        await p;
     }
 }
