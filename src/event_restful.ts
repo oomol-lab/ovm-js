@@ -34,7 +34,11 @@ export class Restful {
         });
     }
 
-    public stop(): void {
-        this.server.close();
+    public stop(): Promise<void> {
+        return new Promise<void>((r) => {
+            this.server.close((_err) => {
+                r();
+            });
+        });
     }
 }

@@ -79,6 +79,10 @@ export class WindowsOVM extends RequestWindows {
             });
         });
 
+        this.#events.init.once(OVMWindowsInitEventValue.Exit, async () => {
+            await this.restful.init.stop();
+        });
+
         const ovmBin = resource("ovm", this.options.resource);
         const ovmArgs = [
             "init",
@@ -108,6 +112,7 @@ export class WindowsOVM extends RequestWindows {
                 this.#events.init.emit(OVMWindowsInitEventValue.Error, {
                     value: "OVM prepare timeout",
                 });
+                this.#events.init.emit(OVMWindowsInitEventValue.Exit, {});
             });
     }
 
@@ -127,6 +132,10 @@ export class WindowsOVM extends RequestWindows {
                 clearTimeout(id);
                 resolve();
             });
+        });
+
+        this.#events.run.once(OVMWindowsRunEventValue.Exit, async () => {
+            await this.restful.run.stop();
         });
 
         const ovmBin = resource("ovm", this.options.resource);
@@ -161,6 +170,7 @@ export class WindowsOVM extends RequestWindows {
                 this.#events.run.emit(OVMWindowsRunEventValue.Error, {
                     value: "OVM run timeout",
                 });
+                this.#events.run.emit(OVMWindowsRunEventValue.Exit, {});
             });
     }
 
@@ -196,5 +206,16 @@ export class WindowsOVM extends RequestWindows {
                 }
             });
         });
+    }
+
+    public override async stop(): Promise<void> {
+        const p = new Promise<void>((r) => {
+            this.#events.run.once(OVMWindowsRunEventValue.Exit, () => {
+                r();
+            });
+        });
+
+        await super.stop();
+        await p;
     }
 }
