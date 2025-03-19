@@ -2,9 +2,9 @@
   "darwin-x64": [
     {
       "name": "ovm",
-      "version": "v1.0.3",
+      "version": "v1.0.4",
       "download": "https://static.oomol.com/ovm-resources/Bauklotze/{version}/ovm-amd64",
-      "sha256": "03fbd5192571e3b44e8e87cc68ceaf29e4fdc959c8be4b108dbda51de8387473",
+      "sha256": "11b21af7020339903e5aa4fcf7fb17a632b61aa1f1dc2c39c9c4489a28d54963",
       "out": "bin/ovm"
     },
     {
@@ -25,9 +25,9 @@
   "darwin-arm64": [
     {
       "name": "ovm",
-      "version": "v1.0.3",
+      "version": "v1.0.4",
       "download": "https://static.oomol.com/ovm-resources/Bauklotze/{version}/ovm-arm64",
-      "sha256": "fb779f6735759766af44f7b289c70029c1b8879ff70d5f7ede827286a4dbea62",
+      "sha256": "598a7edcdd57fa1817aa453a7e3d5697bbd79e4a3de66a9894063f34cb022141",
       "out": "bin/ovm"
     },
     {
