@@ -1,6 +1,6 @@
 {
   "name": "@oomol-lab/ovm",
-  "version": "2.0.7",
+  "version": "2.0.8",
   "description": "oomol virtual machine",
   "main": "src/index.ts",
   "module": "src/index.ts",
