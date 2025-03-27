@@ -100,7 +100,7 @@ async function computeHash(filePath) {
 }
 
 
-async function downloadSteam (url, dest) {
+async function downloadSteam(url, dest) {
     const resp = await fetch(url);
     if (!resp.ok || !resp.body) {
         throw new Error(`unexpected response ${resp.statusText}`);
