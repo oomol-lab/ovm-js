@@ -44,11 +44,10 @@ export type OVMDarwinRunEvent = {
 }
 
 export interface OVMDarwinInfo {
-    podmanSocketPath: string,
-    sshPort: number,
-    sshUser: string,
-    sshPublicKeyPath: string,
-    sshPrivateKeyPath: string,
+    podmanSocketPath: string;
+    sshPort: number;
+    sshUser: string;
+    hostEndpoint: string;
 }
 
 export interface OVMDarwinState {
