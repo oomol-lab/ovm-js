@@ -64,6 +64,7 @@ export interface OVMDarwinState {
 export interface OVMWindowsInfo {
     podmanHost: string;
     podmanPort: number;
+    hostEndpoint: string;
 }
 
 export interface OVMWindowsOptions {
