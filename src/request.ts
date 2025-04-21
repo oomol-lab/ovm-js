@@ -117,14 +117,10 @@ abstract class Request {
 }
 
 type RequestDarwinRawInfoResp = {
-    GvProxy: {
-        HostSocks: [string];
-    };
-    SSH: {
-        IdentityPath: string;
-        Port: number;
-        RemoteUsername: string;
-    }
+    podmanSocketPath: string;
+    sshPort: number;
+    sshUser: string;
+    hostEndpoint: string;
 }
 
 export class RequestDarwin extends Request {
@@ -133,14 +129,7 @@ export class RequestDarwin extends Request {
     }
 
     public async info(): Promise<OVMDarwinInfo> {
-        const result = JSON.parse(await this.do("info", Method.GET)) as RequestDarwinRawInfoResp;
-        return {
-            podmanSocketPath: result.GvProxy.HostSocks[0],
-            sshPort: result.SSH.Port,
-            sshUser: result.SSH.RemoteUsername,
-            sshPrivateKeyPath: result.SSH.IdentityPath,
-            sshPublicKeyPath: `${result.SSH.IdentityPath}.pub`,
-        };
+        return JSON.parse(await this.do("info", Method.GET)) as RequestDarwinRawInfoResp;
     }
 
     public async state(): Promise<OVMDarwinState> {
