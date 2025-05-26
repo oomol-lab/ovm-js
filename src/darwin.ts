@@ -96,7 +96,6 @@ export class DarwinOVM extends RequestDarwin {
 
         const ovmBin = resource("ovm", this.options.resource);
         const ovmArgs = [
-            "machine",
             "init",
             "--cpus", String(this.options.cpu),
             "--memory", String(this.options.memory),
@@ -107,7 +106,7 @@ export class DarwinOVM extends RequestDarwin {
             "--workspace", this.options.workspace,
             "--ppid", String(this.options.bindPID),
             "--volume", "/Users:/Users",
-            "default",
+            "-name", "default",
         ];
 
         for (const item of this.options.appendVolume || []) {
@@ -158,12 +157,11 @@ export class DarwinOVM extends RequestDarwin {
 
         const ovmBin = resource("ovm", this.options.resource);
         const ovmArgs = [
-            "machine",
             "start",
             "--report-url", `unix://${this.restfulWithRun}`,
             "--workspace", this.options.workspace,
             "--ppid", String(this.options.bindPID),
-            "default",
+            "-name", "default",
         ];
 
         if (enableDebug()) {
