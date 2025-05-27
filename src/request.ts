@@ -125,7 +125,7 @@ type RequestDarwinRawInfoResp = {
 
 export class RequestDarwin extends Request {
     public constructor(workspace: string) {
-        super(path.join(workspace, "socks", "ovm_restapi.socks"), "http://ovm/");
+        super(path.join(workspace, "default", "socks", "ovm_restapi.socks"), "http://ovm/");
     }
 
     public async info(): Promise<OVMDarwinInfo> {
