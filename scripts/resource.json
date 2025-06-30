@@ -16,9 +16,9 @@
     },
     {
       "name": "libexec",
-      "version": "v1.0.7",
+      "version": "v1.0.8",
       "download": "https://static.oomol.com/ovm-resources/libexec/{version}/libexec-darwin-amd64.tar.gz",
-      "sha256": "eb8b33eb363cab993b0679cb496d289e04fb9db1370a7634a53119d377b751c0",
+      "sha256": "5904ca9629653aa1e4a1c51433eb9b144c50741d38897f38301e6d8213ebf20f",
       "out": "libexec.tar.gz"
     }
   ],
@@ -39,9 +39,9 @@
     },
     {
       "name": "libexec",
-      "version": "v1.0.7",
+      "version": "v1.0.8",
       "download": "https://static.oomol.com/ovm-resources/libexec/{version}/libexec-darwin-arm64.tar.gz",
-      "sha256": "791090bae2707262290d38394d09e5aeedf37c787a28675e05f1d438f730c153",
+      "sha256": "08ae88012a4eb76b45eb3d4b48f252bb627fd34f51d2bababf10c85eff1eda92",
       "out": "libexec.tar.gz"
     }
   ],
