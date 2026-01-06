@@ -2,6 +2,10 @@
   "name": "@oomol-lab/ovm",
   "version": "2.3.0",
   "description": "oomol virtual machine",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/oomol-lab/ovm-js"
+  },
   "main": "src/index.ts",
   "module": "src/index.ts",
   "types": "src/index.ts",
