@@ -53,7 +53,7 @@ for (const file of files) {
         continue;
     }
     if (["gvproxy", "krunkit", "ovm", "ovm.exe"].includes(file.name)) {
-        await fsP.chmod(join(file.path, file.name), 0o755);
+        await fsP.chmod(join(file.parentPath, file.name), 0o755);
     }
 }
 
