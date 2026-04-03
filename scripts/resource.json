@@ -25,24 +25,10 @@
   "darwin-arm64": [
     {
       "name": "ovm",
-      "version": "v1.0.9",
-      "download": "https://static.oomol.com/ovm-resources/Bauklotze/{version}/ovm-arm64",
-      "sha256": "1083e9052db3ba8a28fce47a47129f9948cb62d0708f5cb0d713b818e691ad47",
-      "out": "bin/ovm"
-    },
-    {
-      "name": "bootable",
-      "version": "v1.0.1",
-      "download": "https://static.oomol.com/ovm-resources/Bauklotze_bootable/{version}/bootable-darwin-arm64.img.zst",
-      "sha256": "b56e2e9a6c1e63a807757176b632511f17f0747cbf7b47a256e8ed4a680f1863",
-      "out": "bootable.img.zst"
-    },
-    {
-      "name": "libexec",
-      "version": "v1.0.8",
-      "download": "https://static.oomol.com/ovm-resources/libexec/{version}/libexec-darwin-arm64.tar.gz",
-      "sha256": "08ae88012a4eb76b45eb3d4b48f252bb627fd34f51d2bababf10c85eff1eda92",
-      "out": "libexec.tar.gz"
+      "version": "v5.1.2",
+      "download": "https://github.com/oomol-lab/ovm-next/releases/download/{version}/ovm-darwin-arm64.tar.gz",
+      "sha256": "a9c50d457d1c74d99bd3607aff83bcb8d453f8d3753deb030b86ed801c14cad4",
+      "out": "ovm-darwin-arm64.tar.gz"
     }
   ],
   "win32-x64": [

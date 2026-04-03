@@ -34,8 +34,7 @@ for (const { name, version, download: downloadTemplate, sha256, out } of info) {
 
     let distPath;
     if (out.endsWith(".tar.gz")) {
-        distPath = join(distDir, out.replace(".tar.gz", ""));
-        await fsP.rm(distPath, { force: true, recursive: true });
+        distPath = distDir;
         await tgz.uncompress(cachePath, distPath)
     } else {
         distPath = join(distDir, out);
