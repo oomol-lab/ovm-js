@@ -38,6 +38,7 @@ fs.access(path.join(workspace, "vm-resources"), constants.F_OK, async (err) => {
             recursive: true,
             force: true,
             preserveTimestamps: true,
+            verbatimSymlinks: true,
         });
     }
 
