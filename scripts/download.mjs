@@ -1,6 +1,6 @@
 import fs from "node:fs";
 import fsP from "node:fs/promises";
-import { join, dirname, basename, isAbsolute } from "node:path";
+import { join, dirname, basename } from "node:path";
 import { pipeline } from "node:stream/promises";
 import { fileURLToPath } from "node:url";
 import { homedir } from "node:os";
@@ -35,8 +35,9 @@ for (const { name, version, download: downloadTemplate, sha256, out } of info) {
     let distPath;
     if (out.endsWith(".tar.gz")) {
         distPath = distDir;
+        const symlinks = await collectSymlinks(cachePath);
         await tgz.uncompress(cachePath, distPath);
-        await fixSymlinks(distPath);
+        await fixSymlinks(distPath, symlinks);
     } else {
         distPath = join(distDir, out);
         await fsP.rm(distPath, { force: true, recursive: true });
@@ -59,17 +60,28 @@ for (const file of files) {
 
 console.log("[OVM]: Downloaded successfully");
 
-async function fixSymlinks(dir) {
-    const files = await fsP.readdir(dir, { withFileTypes: true, recursive: true });
-    for (const file of files) {
-        if (!file.isSymbolicLink()) continue;
-        const symlinkPath = join(file.parentPath, file.name);
-        const target = await fsP.readlink(symlinkPath);
-        if (!isAbsolute(target)) continue;
+async function collectSymlinks(tarPath) {
+    const symlinks = new Map();
+    await new Promise((resolve, reject) => {
+        const stream = new tgz.UncompressStream({ source: tarPath });
+        stream.on("entry", (header, fileStream, next) => {
+            if (header.type === "symlink") {
+                symlinks.set(header.name, header.linkname);
+            }
+            fileStream.resume();
+            next();
+        });
+        stream.on("finish", resolve);
+        stream.on("error", reject);
+    });
+    return symlinks;
+}
 
-        const relTarget = basename(target);
+async function fixSymlinks(dir, symlinks) {
+    for (const [name, linkname] of symlinks) {
+        const symlinkPath = join(dir, name);
         await fsP.unlink(symlinkPath);
-        await fsP.symlink(relTarget, symlinkPath);
+        await fsP.symlink(linkname, symlinkPath);
     }
 }
 
