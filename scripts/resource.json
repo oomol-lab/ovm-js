@@ -25,9 +25,9 @@
   "darwin-arm64": [
     {
       "name": "ovm",
-      "version": "v5.1.3",
+      "version": "v5.1.4",
       "download": "https://github.com/oomol-lab/ovm-next/releases/download/{version}/ovm-darwin-arm64.tar.gz",
-      "sha256": "645b223b1f32266f60359656a0ca54d823240830327f8d83e42f06d4afc381ea",
+      "sha256": "7356537b22c9545c4ddb9ae4a34530f02a765e87827d93ebe6874c260f1d8cd6",
       "out": "ovm-darwin-arm64.tar.gz"
     }
   ],
