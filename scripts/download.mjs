@@ -53,7 +53,7 @@ for (const file of files) {
     if (file.isDirectory()) {
         continue;
     }
-    if (["gvproxy", "krunkit", "ovm", "ovm.exe"].includes(file.name)) {
+    if (["gvproxy", "krunkit", "ovm", "ovm.exe"].includes(file.name) || file.name.endsWith(".dylib") || file.name.endsWith(".so")) {
         await fsP.chmod(join(file.parentPath, file.name), 0o755);
     }
 }
