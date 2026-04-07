@@ -1,6 +1,6 @@
 {
   "name": "@oomol-lab/ovm",
-  "version": "2.4.6",
+  "version": "2.4.7",
   "description": "oomol virtual machine",
   "repository": {
     "type": "git",
