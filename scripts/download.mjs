@@ -6,8 +6,7 @@ import { fileURLToPath } from "node:url";
 import { homedir } from "node:os";
 import crypto from "node:crypto";
 import { tgz } from "compressing";
-import { Readable } from "node:stream";
-import { finished } from "node:stream/promises";
+import { EnvHttpProxyAgent, request, setGlobalDispatcher } from "undici";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -20,6 +19,8 @@ if (!info) {
     console.warn(`[OVM]: Currently only supports ${supportList}`);
     process.exit(0);
 }
+
+let proxyInitialized = false;
 
 const cacheDir = join(homedir(), ".cache", "ovm");
 const distDir = join(__dirname, "vm-resources");
@@ -36,6 +37,8 @@ for (const { name, version, download: downloadTemplate, sha256, out } of info) {
     if (out.endsWith(".tar.gz")) {
         distPath = distDir;
         const symlinks = await collectSymlinks(cachePath);
+        await fsP.rm(distPath, { force: true, recursive: true });
+        await fsP.mkdir(distPath, { recursive: true });
         await tgz.uncompress(cachePath, distPath);
         await fixSymlinks(distPath, symlinks);
     } else {
@@ -80,13 +83,13 @@ async function collectSymlinks(tarPath) {
 async function fixSymlinks(dir, symlinks) {
     for (const [name, linkname] of symlinks) {
         const symlinkPath = join(dir, name);
-        await fsP.unlink(symlinkPath);
+        await fsP.rm(symlinkPath, { force: true, recursive: true });
         await fsP.symlink(linkname, symlinkPath);
     }
 }
 
-
 function download(retry) {
+    initializeProxy();
     let r = retry;
     return async function doDownload(url, output, sha256, isRetry = false) {
         if (r === 0) {
@@ -108,7 +111,7 @@ function download(retry) {
 
         console.log("[OVM]: Downloading", url, "to", output);
         try {
-            await downloadSteam(url, output)
+            await downloadStream(url, output);
         } catch (_err) {
             console.warn("[OVM]: Download failed, retrying...");
             await new Promise(resolve => setTimeout(resolve, 1000));
@@ -127,13 +130,38 @@ async function computeHash(filePath) {
 }
 
 
-async function downloadSteam(url, dest) {
-    const resp = await fetch(url);
-    if (!resp.ok || !resp.body) {
-        throw new Error(`unexpected response ${resp.statusText}`);
+async function downloadStream(url, dest) {
+    const { body, statusCode } = await request(url, {
+        maxRedirections: 5,
+    });
+
+    if (statusCode < 200 || statusCode >= 300) {
+        body.resume();
+        throw new Error(`unexpected response ${statusCode}`);
     }
 
     const file = fs.createWriteStream(dest);
-    await finished(Readable.fromWeb(resp.body)
-        .pipe(file));
+    await pipeline(body, file);
+}
+
+function initializeProxy() {
+    if (proxyInitialized) {
+        return;
+    }
+    proxyInitialized = true;
+
+    try {
+        if (
+            !process.env.http_proxy
+            && !process.env.HTTP_PROXY
+            && !process.env.https_proxy
+            && !process.env.HTTPS_PROXY
+        ) {
+            return;
+        }
+
+        setGlobalDispatcher(new EnvHttpProxyAgent());
+    } catch (e) {
+        console.warn("Could not configure undici proxy support:", e);
+    }
 }
