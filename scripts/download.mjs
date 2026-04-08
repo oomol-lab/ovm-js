@@ -8,7 +8,9 @@ import crypto from "node:crypto";
 import { tgz } from "compressing";
 import { Readable } from "node:stream";
 import { finished } from "node:stream/promises";
+import { createRequire } from 'node:module';
 
+const require = createRequire(import.meta.url);
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
@@ -87,6 +89,7 @@ async function fixSymlinks(dir, symlinks) {
 
 
 function download(retry) {
+    initializeProxy();
     let r = retry;
     return async function doDownload(url, output, sha256, isRetry = false) {
         if (r === 0) {
@@ -136,4 +139,39 @@ async function downloadSteam(url, dest) {
     const file = fs.createWriteStream(dest);
     await finished(Readable.fromWeb(resp.body)
         .pipe(file));
+}
+
+// Reference: https://github.com/electron/get/blob/main/src/proxy.ts
+function initializeProxy() {
+    try {
+        const env = getEnv('GLOBAL_AGENT_');
+        setEnv('GLOBAL_AGENT_HTTP_PROXY', env('HTTP_PROXY'));
+        setEnv('GLOBAL_AGENT_HTTPS_PROXY', env('HTTPS_PROXY'));
+        setEnv('GLOBAL_AGENT_NO_PROXY', env('NO_PROXY'));
+        require('global-agent').bootstrap();
+    } catch (e) {
+        console.warn('Could not load either proxy modules, built-in proxy support not available:', e);
+    }
+}
+
+function getEnv(prefix = '') {
+    const envsLowerCase = {};
+
+    for (const envKey in process.env) {
+        envsLowerCase[envKey.toLowerCase()] = process.env[envKey];
+    }
+
+    return function env(name) {
+        return (
+            envsLowerCase[`${prefix}${name}`.toLowerCase()] ||
+            envsLowerCase[name.toLowerCase()] ||
+            undefined
+        );
+    }
+}
+
+function setEnv(key, value) {
+    if (value !== void 0) {
+        process.env[key] = value;
+    }
 }
