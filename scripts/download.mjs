@@ -1,12 +1,13 @@
 import fs from "node:fs";
 import fsP from "node:fs/promises";
 import { join, dirname, basename } from "node:path";
+import { Readable } from "node:stream";
 import { pipeline } from "node:stream/promises";
 import { fileURLToPath } from "node:url";
 import { homedir } from "node:os";
 import crypto from "node:crypto";
 import { tgz } from "compressing";
-import { EnvHttpProxyAgent, request, setGlobalDispatcher } from "undici";
+import { EnvHttpProxyAgent, fetch, setGlobalDispatcher } from "undici";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -131,17 +132,13 @@ async function computeHash(filePath) {
 
 
 async function downloadStream(url, dest) {
-    const { body, statusCode } = await request(url, {
-        maxRedirections: 5,
-    });
-
-    if (statusCode < 200 || statusCode >= 300) {
-        body.resume();
-        throw new Error(`unexpected response ${statusCode}`);
+    const resp = await fetch(url);
+    if (!resp.ok || !resp.body) {
+        throw new Error(`unexpected response ${resp.statusText}`);
     }
 
     const file = fs.createWriteStream(dest);
-    await pipeline(body, file);
+    await pipeline(Readable.fromWeb(resp.body), file);
 }
 
 function initializeProxy() {
